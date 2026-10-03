@@ -1,0 +1,159 @@
+# Client categories/weights; PG-S2-29 anchored descriptors. Draft pending client approval.
+version: '3.0'
+score_name: MamakScore
+scale:
+- 0
+- 10
+not_stated_justification: Not addressed in the submitted material.
+criteria:
+- id: problem
+  name: Problem / Pain Point
+  weight: 10
+  evidence_to_look_for:
+  - Who specifically has the problem
+  - What it costs them today, in money or time
+  - Why existing alternatives fail them
+  anchors:
+    0-2: No problem stated, or the problem is a restatement of the product ("people need our app").
+    3-4: A problem is named but only in general terms, with no identified sufferer and no cost of the status quo.
+    5-6: A specific customer segment and problem are named. The cost of the status quo is asserted but not quantified
+      or sourced.
+    7-8: Specific segment, specific problem, and a quantified cost of the status quo. Existing alternatives are
+      named and their shortfall explained.
+    9-10: All of the above, plus the cost figure is attributed to a named source or the founder's own primary research,
+      and the failure of alternatives is evidenced rather than asserted.
+- id: market
+  name: Market
+  weight: 15
+  evidence_to_look_for:
+  - TAM / SAM / SOM or an equivalent sizing
+  - The method used to reach the number, not just the number
+  - Growth direction and its driver
+  - Evidence of direct contact with the market (interviews, pilots, surveys)
+  anchors:
+    0-2: No market sizing and no evidence of contact with the market.
+    3-4: A single large number quoted with no method and no segmentation ("$50B market"), or market interest asserted
+      with no detail on who or how many.
+    5-6: Market is segmented (e.g. TAM and SAM distinguished) but the derivation is top-down only. Some customer
+      contact described, without counts.
+    7-8: Segmented sizing with the method shown, bottom-up or sourced, plus specific counts and segments of customer
+      contact with concrete findings.
+    9-10: Bottom-up sizing tied to the founder's actual reachable segment with sourced inputs and a justified growth
+      driver, supported by named reference customers or documented pilot outcomes — including at least one finding
+      that changed the founder's plan.
+- id: product
+  name: Product / Solution
+  weight: 10
+  evidence_to_look_for:
+  - What the product concretely does
+  - Current build state (concept, prototype, beta, shipped)
+  - How the solution connects to the stated problem
+  anchors:
+    0-2: No description of what the product does, or description consists only of adjectives and category labels.
+    3-4: The product is described in marketing language only. A reader could not say what it does mechanically.
+      Build state not stated.
+    5-6: A reader can describe what the product does. Build state is stated. The link to the problem is implied
+      rather than argued.
+    7-8: Concrete functional description, explicit build state, and an explicit argument for why this solution addresses
+      the stated problem.
+    9-10: All of the above, plus evidence the solution works as described — a demo link, screenshots, usage data,
+      or a technical walkthrough.
+- id: business_model
+  name: Business Model
+  weight: 10
+  evidence_to_look_for:
+  - How the company charges, and whom
+  - Price points
+  - CAC, LTV, gross margin, or a stated path to them
+  anchors:
+    0-2: No statement of how the business makes money.
+    3-4: A revenue model is named as a category ("SaaS", "marketplace") with no pricing and no economics.
+    5-6: Revenue model and price points stated. No unit economics, or unit economics asserted without derivation.
+    7-8: Model, pricing, and at least two unit-economic figures with their basis stated, clearly labelled as actual
+      or projected.
+    9-10: Full unit economics with actuals where the stage allows, assumptions made explicit, and sensitivity to
+      the riskiest assumption acknowledged.
+- id: traction
+  name: Traction
+  weight: 15
+  evidence_to_look_for:
+  - Revenue, users, pilots, LOIs, waitlist, partnerships
+  - The time period the numbers cover
+  - Direction of travel, not just a snapshot
+  - Retention or repeat use, not only cumulative totals
+  anchors:
+    0-2: No traction of any kind reported, and no statement that the venture is pre-traction.
+    3-4: Traction claimed in vague terms ("strong growth", "significant interest") with no numbers.
+    5-6: Absolute numbers for at least one traction metric, but without a time period or a trend.
+    7-8: Numbers with time periods and a visible trend across at least two points. Metric definitions are clear.
+    9-10: Trend across three or more periods with defined metrics, including at least one measure of retention or
+      repeat use rather than only cumulative totals.
+- id: competitive_advantage
+  name: Competitive Advantage
+  weight: 10
+  evidence_to_look_for:
+  - Named competitors, including indirect and status-quo alternatives
+  - Basis of differentiation, tied to the customer problem
+  - Defensibility - IP, proprietary data, network effects, switching costs
+  - Honesty about where competitors are stronger
+  anchors:
+    0-2: Claims no competitors exist, or does not address competition or defensibility at all.
+    3-4: Competitors named but dismissed without analysis, or a feature grid the founder wins on every row. Any
+      moat claim is a buzzword ("AI-powered", "proprietary technology") with no mechanism.
+    5-6: Competitors named across at least two categories with a stated basis of differentiation. A moat is claimed
+      but not evidenced.
+    7-8: Direct, indirect and status-quo alternatives addressed, with differentiation tied to the customer problem
+      rather than to feature counts, plus a specific and plausible defensibility argument.
+    9-10: All of the above, with the defensibility claim evidenced (patent number and status, data volume and exclusivity,
+      measured retention or switching cost) AND acknowledgement of where a competitor is genuinely stronger and
+      why the founder still wins in their chosen segment.
+- id: financials
+  name: Financials
+  weight: 15
+  evidence_to_look_for:
+  - Historical and projected revenue and cost
+  - Amount sought, instrument, and itemised use of funds
+  - Runway and the milestone the money buys
+  - Whether projections are derived or asserted
+  anchors:
+    0-2: No financial information of any kind and no funding ask.
+    3-4: An amount is stated with no use of funds, no runway, and no financial history or projection.
+    5-6: Amount, instrument, and a high-level use of funds. Some financial figures present, but projections are
+      asserted without derivation and runway is not derivable.
+    7-8: Amount, instrument, itemised use of funds, stated runway, the milestone the round reaches, and projections
+      whose key assumptions are visible.
+    9-10: All of the above, plus the milestone is expressed as a measurable condition that would make the next round
+      raisable, and the single most load-bearing financial assumption is identified as such.
+- id: team
+  name: Team
+  weight: 10
+  evidence_to_look_for:
+  - Who the founders are and what they have done before
+  - Why this team for this problem specifically
+  - Named gaps and the plan to fill them
+  anchors:
+    0-2: No team information, or names only.
+    3-4: Names and titles with generic credentials. No connection drawn between background and this problem.
+    5-6: Relevant background stated for at least one founder, with an explicit link to the problem domain.
+    7-8: Relevant, verifiable background across the founding team, an explicit founder-market fit argument, and
+      named capability gaps.
+    9-10: All of the above, plus evidence of the team having executed together, and a concrete plan with timing
+      for the named gaps.
+- id: scalability
+  name: Scalability
+  weight: 5
+  evidence_to_look_for:
+  - Whether growth requires proportional headcount or cost
+  - Beachhead segment and the expansion path beyond it
+  - Named channels and whether any has been tested
+  - Operational or technical constraints on growth
+  anchors:
+    0-2: No discussion of how the business grows beyond its current state.
+    3-4: Growth asserted as inevitable, or channels listed as categories ("social media, partnerships, SEO") with
+      no sequencing and no rationale.
+    5-6: A defined beachhead segment with a rationale, and named channels, but no evidence any channel works and
+      no view on what breaks at scale.
+    7-8: Beachhead, sequenced channels with at least one tested result (cost per acquisition, conversion, pilot),
+      and a stated expansion path.
+    9-10: All of the above, plus an explicit account of what does NOT scale linearly — the operational, delivery
+      or margin constraint that growth runs into — and what is being done about it.

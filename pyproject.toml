@@ -1,0 +1,64 @@
+[build-system]
+requires = ["setuptools>=75", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "mamakscore-ai-engine"
+version = "0.1.0"
+description = "Evidence-grounded startup assessment engine for Mamak Mentor"
+requires-python = ">=3.12"
+dependencies = [
+  "fastapi>=0.116,<1",
+  "httpx>=0.28,<1",
+  "openpyxl>=3.1,<4",
+  "pydantic>=2.11,<3",
+  "pydantic-settings>=2.10,<3",
+  "PyMuPDF>=1.26,<2",
+  "PyYAML>=6,<7",
+  "python-multipart>=0.0.20,<1",
+  "uvicorn>=0.35,<1",
+]
+
+[project.optional-dependencies]
+dev = [
+  "mypy>=1.17,<2",
+  "pytest>=8.4,<10",
+  "pytest-cov>=6,<8",
+  "ruff>=0.12,<1",
+  "scikit-learn>=1.7,<2",
+  "scipy>=1.16,<2",
+]
+
+[project.scripts]
+mamakscore = "mamakscore.cli:main"
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.setuptools.package-data]
+mamakscore = ["data/*.yaml"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]
+addopts = "--strict-markers"
+
+[tool.ruff]
+target-version = "py312"
+line-length = 100
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "B", "UP", "SIM", "RUF"]
+ignore = ["B008", "E501", "RUF001"]
+
+[tool.mypy]
+python_version = "3.12"
+strict = true
+packages = ["mamakscore"]
+
+[[tool.mypy.overrides]]
+# These third-party packages ship no type information (no stubs, no py.typed).
+# They are used only at well-defined boundaries wrapped in our own typed
+# functions, so untyped imports are accepted rather than vendored as stubs.
+module = ["yaml", "openpyxl", "scipy.*", "sklearn.*"]
+ignore_missing_imports = true
+disable_error_code = ["import-untyped"]

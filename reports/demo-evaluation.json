@@ -1,0 +1,339 @@
+{
+  "application_id": "demo-001",
+  "source_files": [
+    {
+      "name": "deck.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 1096,
+      "sha256": "d3c91e17c72a21b98c609e4c60d817ea9a6bb72af290ed9aaf0e8a59c1db627e"
+    },
+    {
+      "name": "finance.xlsx",
+      "media_type": "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+      "size_bytes": 5044,
+      "sha256": "b2fcae3198682c5f2f06dcd52c621e81e6bb27c326f53ef083d83420f95019a1"
+    }
+  ],
+  "extraction": {
+    "source": {
+      "name": "deck.pdf",
+      "media_type": "application/pdf",
+      "size_bytes": 1096,
+      "sha256": "d3c91e17c72a21b98c609e4c60d817ea9a6bb72af290ed9aaf0e8a59c1db627e"
+    },
+    "method": "direct",
+    "page_count": 1,
+    "canonical_text": "[Page 1]\nProblem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed\n120 practice managers; 78% reported the same pain. Our working prototype automates\nreminders for a monthly fee of $50 per clinic. A six-month pilot has 100 paying clinics and\n92% retention.",
+    "pages": [
+      {
+        "page": 1,
+        "method": "direct",
+        "characters": 235,
+        "alphanumeric_ratio": 0.9532,
+        "printable_ratio": 1.0
+      }
+    ],
+    "text_characters": 287
+  },
+  "financials": {
+    "provided": true,
+    "model_family": "startup",
+    "inputs": {
+      "customers": {
+        "name": "customers",
+        "value": "100",
+        "period": "point_in_time",
+        "currency": null,
+        "source": "Forecast!B2"
+      },
+      "arpu": {
+        "name": "arpu",
+        "value": "50",
+        "period": "monthly",
+        "currency": null,
+        "source": "Forecast!B3"
+      },
+      "gross_margin": {
+        "name": "gross_margin",
+        "value": "0.6",
+        "period": "monthly",
+        "currency": null,
+        "source": "Forecast!B4"
+      },
+      "operating_expenses": {
+        "name": "operating_expenses",
+        "value": "4000",
+        "period": "monthly",
+        "currency": null,
+        "source": "Forecast!B5"
+      },
+      "cash": {
+        "name": "cash",
+        "value": "12000",
+        "period": "point_in_time",
+        "currency": null,
+        "source": "Forecast!B6"
+      },
+      "customer_lifetime": {
+        "name": "customer_lifetime",
+        "value": "24",
+        "period": "point_in_time",
+        "currency": null,
+        "source": "Forecast!B7"
+      },
+      "cac": {
+        "name": "cac",
+        "value": "300",
+        "period": "point_in_time",
+        "currency": null,
+        "source": "Forecast!B8"
+      }
+    },
+    "metrics": {
+      "revenue": {
+        "name": "revenue",
+        "value": "5000",
+        "unit": "currency",
+        "formula": "Customers × Average Revenue per Customer",
+        "source_inputs": [
+          "customers",
+          "arpu"
+        ],
+        "unavailable_reason": null
+      },
+      "gross_profit": {
+        "name": "gross_profit",
+        "value": "3000.0",
+        "unit": "currency",
+        "formula": "Revenue × Gross Margin",
+        "source_inputs": [
+          "revenue",
+          "gross_margin"
+        ],
+        "unavailable_reason": null
+      },
+      "burn": {
+        "name": "burn",
+        "value": "1000.0",
+        "unit": "currency",
+        "formula": "Operating Expenses − Gross Profit",
+        "source_inputs": [
+          "operating_expenses",
+          "gross_profit"
+        ],
+        "unavailable_reason": null
+      },
+      "runway": {
+        "name": "runway",
+        "value": "12",
+        "unit": "months",
+        "formula": "Cash ÷ Monthly Burn",
+        "source_inputs": [
+          "cash",
+          "burn"
+        ],
+        "unavailable_reason": null
+      },
+      "ltv": {
+        "name": "ltv",
+        "value": "720.0",
+        "unit": "currency",
+        "formula": "ARPU × Gross Margin × Customer Lifetime",
+        "source_inputs": [
+          "arpu",
+          "gross_margin",
+          "customer_lifetime"
+        ],
+        "unavailable_reason": null
+      },
+      "cac_payback": {
+        "name": "cac_payback",
+        "value": "1E+1",
+        "unit": "months",
+        "formula": "CAC ÷ Monthly Gross Profit per Customer",
+        "source_inputs": [
+          "cac",
+          "monthly_gross_profit_per_customer"
+        ],
+        "unavailable_reason": null
+      }
+    },
+    "warnings": [],
+    "canonical_text": "[Sheet: Forecast]\nMetric | Monthly\nPaying Customers | 100\nAverage Revenue per Customer | 50\nGross Margin % | 60\nOperating Expenses | 4000\nCash Balance | 12000\nCustomer Lifetime Months | 24\nCustomer Acquisition Cost | 300\nEBITDA | 100"
+  },
+  "criterion_scores": [
+    {
+      "criterion_id": "problem",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "market",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "product",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "business_model",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "traction",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "competitive_advantage",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "financials",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "team",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    },
+    {
+      "criterion_id": "scalability",
+      "score": 4,
+      "justification": "Offline fixture score for pipeline verification only.",
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed",
+      "source_file": "deck.pdf",
+      "confidence": "low"
+    }
+  ],
+  "mamak_score": "40.0",
+  "band": {
+    "label": "Needs significant validation",
+    "boundary_escalation": false,
+    "human_review_required": true
+  },
+  "mamak_confidence": {
+    "value": null,
+    "status": "PROVISIONAL_NOT_CLIENT_APPROVED",
+    "client_approved": false,
+    "formula_version": "1.0",
+    "components": {
+      "coverage": 100.0,
+      "strength": 100.0,
+      "penalty": 0
+    }
+  },
+  "red_flags": [],
+  "investor_questions": [
+    {
+      "question": "What stronger evidence can you provide for Problem / Pain Point?",
+      "criterion_ids": [
+        "problem"
+      ],
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed"
+    },
+    {
+      "question": "What stronger evidence can you provide for Market?",
+      "criterion_ids": [
+        "market"
+      ],
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed"
+    },
+    {
+      "question": "What stronger evidence can you provide for Product / Solution?",
+      "criterion_ids": [
+        "product"
+      ],
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed"
+    },
+    {
+      "question": "What stronger evidence can you provide for Business Model?",
+      "criterion_ids": [
+        "business_model"
+      ],
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed"
+    },
+    {
+      "question": "What stronger evidence can you provide for Traction?",
+      "criterion_ids": [
+        "traction"
+      ],
+      "evidence_quote": "Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed"
+    }
+  ],
+  "improvement_plan": [
+    {
+      "action": "Add quantified evidence for Market.",
+      "criterion_id": "market",
+      "target_score": 6,
+      "priority": "high",
+      "projected_gain": "3.0"
+    },
+    {
+      "action": "Add quantified evidence for Problem / Pain Point.",
+      "criterion_id": "problem",
+      "target_score": 6,
+      "priority": "high",
+      "projected_gain": "2.0"
+    },
+    {
+      "action": "Add quantified evidence for Product / Solution.",
+      "criterion_id": "product",
+      "target_score": 6,
+      "priority": "high",
+      "projected_gain": "2.0"
+    }
+  ],
+  "missing_information": [
+    "Offline fixture: real model evaluation not run."
+  ],
+  "report_html": "<article class='mamak-report'><style>.mamak-report{font:16px/1.5 system-ui;color:#17202a;background:#fff;max-width:70rem;margin:auto}table{border-collapse:collapse;width:100%}th,td{border:1px solid #566573;padding:.5rem;text-align:left;vertical-align:top}.warning{border:3px solid #8a4b00;padding:1rem;background:#fff4df}@media print{.mamak-report{max-width:none}}</style><h1>MamakScore Assessment</h1><p><strong>Application:</strong> demo-001</p><p><strong>MamakScore:</strong> 40.0/100 — Needs significant validation</p><p><strong>Human review required:</strong> Yes</p><section class='warning'><h2>MamakConfidence warning</h2><p>PROVISIONAL — NOT CLIENT APPROVED. Value: Not exposed</p></section><section><h2>Category scores</h2><table><caption>Evidence-grounded category assessment</caption><thead><tr><th>Category</th><th>Score</th><th>Analysis</th><th>Evidence</th></tr></thead><tbody><tr><th scope='row'>problem</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>market</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>product</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>business_model</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>traction</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>competitive_advantage</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>financials</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>team</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr><tr><th scope='row'>scalability</th><td>4/10</td><td>Offline fixture score for pipeline verification only.</td><td><q>Problem: Independent clinics lose 20 hours each week to manual follow-up. We interviewed</q></td></tr></tbody></table></section><section><h2>Financial metrics</h2><table><caption>Deterministic calculations</caption><thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead><tbody><tr><th scope='row'>revenue</th><td>5000</td><td></td></tr><tr><th scope='row'>gross_profit</th><td>3000.0</td><td></td></tr><tr><th scope='row'>burn</th><td>1000.0</td><td></td></tr><tr><th scope='row'>runway</th><td>12</td><td></td></tr><tr><th scope='row'>ltv</th><td>720.0</td><td></td></tr><tr><th scope='row'>cac_payback</th><td>1E+1</td><td></td></tr></tbody></table></section><section><h2>Red flags</h2><ul><li>None reported.</li></ul></section><section><h2>Investor questions</h2><ul><li>What stronger evidence can you provide for Problem / Pain Point?</li><li>What stronger evidence can you provide for Market?</li><li>What stronger evidence can you provide for Product / Solution?</li><li>What stronger evidence can you provide for Business Model?</li><li>What stronger evidence can you provide for Traction?</li></ul></section><section><h2>Prioritised improvement plan</h2><ol><li>Add quantified evidence for Market. <strong>Maximum projected gain: +3.0</strong></li><li>Add quantified evidence for Problem / Pain Point. <strong>Maximum projected gain: +2.0</strong></li><li>Add quantified evidence for Product / Solution. <strong>Maximum projected gain: +2.0</strong></li></ol></section><section><h2>Missing information</h2><ul><li>Offline fixture: real model evaluation not run.</li></ul></section><section><h2>Provenance</h2><p>Model offline-fixture-v1; rubric 3.0; prompt 1.0.</p></section></article>",
+  "provenance": {
+    "provider": "offline",
+    "model_id": "offline-fixture-v1",
+    "rubric_version": "3.0",
+    "rubric_digest": "fefde2c1d7247b20a549f2d70716f9dfd4361a3ab9ab7c66fcd337c0a1691e3a",
+    "prompt_version": "1.0",
+    "prompt_digest": "4d2785b34f6bf27619024f362b634bd3e35ad0917b720418886c13ed1336b023",
+    "input_digest": "31c0c49c24ebc8c5092de3afa37a48e3514379886144dbb9a50d79d9b58a7a08",
+    "confidence_formula_version": "1.0",
+    "from_cache": false,
+    "input_tokens": null,
+    "output_tokens": null,
+    "estimated_cost_usd": null
+  },
+  "timing": {
+    "extraction_seconds": 0.0575,
+    "provider_seconds": 0.0004,
+    "total_seconds": 0.0802
+  }
+}

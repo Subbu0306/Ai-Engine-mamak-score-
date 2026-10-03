@@ -1,0 +1,19 @@
+# Claude / Anthropic artifacts
+.claude/
+.claude*
+claude_*.json
+
+# OS and editor files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
+
+# Common build and environment files
+node_modules/
+dist/
+build/
+.env
+.env.local
+__pycache__/
+*.pyc

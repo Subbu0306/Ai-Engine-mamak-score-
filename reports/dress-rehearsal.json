@@ -1,0 +1,94 @@
+{
+  "generated_at": "2026-09-14T16:30:35.535037+00:00",
+  "mode": "offline",
+  "deck": "deck.pdf",
+  "financial_model": "finance.xlsx",
+  "runs": [
+    {
+      "run_id": "dress-1",
+      "mamak_score": "40.0",
+      "band": "Needs significant validation",
+      "human_review_required": true,
+      "confidence_status": "PROVISIONAL_NOT_CLIENT_APPROVED",
+      "confidence_client_approved": false,
+      "provider": "offline",
+      "model_id": "offline-fixture-v1",
+      "rubric_digest": "fefde2c1d7247b20a549f2d70716f9dfd4361a3ab9ab7c66fcd337c0a1691e3a",
+      "prompt_digest": "4d2785b34f6bf27619024f362b634bd3e35ad0917b720418886c13ed1336b023",
+      "input_digest": "31c0c49c24ebc8c5092de3afa37a48e3514379886144dbb9a50d79d9b58a7a08",
+      "output_digest": "356c5abcb40ef0e2bccdc8ebe24c96841afc6f8ffa5d13ae2b863319696cc6cc",
+      "criterion_count": 9,
+      "extraction_method": "direct",
+      "financial_metrics": {
+        "revenue": "5000",
+        "gross_profit": "3000.0",
+        "burn": "1000.0",
+        "runway": "12",
+        "ltv": "720.0",
+        "cac_payback": "1E+1"
+      },
+      "report_html_len": 4471
+    },
+    {
+      "run_id": "dress-2",
+      "mamak_score": "40.0",
+      "band": "Needs significant validation",
+      "human_review_required": true,
+      "confidence_status": "PROVISIONAL_NOT_CLIENT_APPROVED",
+      "confidence_client_approved": false,
+      "provider": "offline",
+      "model_id": "offline-fixture-v1",
+      "rubric_digest": "fefde2c1d7247b20a549f2d70716f9dfd4361a3ab9ab7c66fcd337c0a1691e3a",
+      "prompt_digest": "4d2785b34f6bf27619024f362b634bd3e35ad0917b720418886c13ed1336b023",
+      "input_digest": "31c0c49c24ebc8c5092de3afa37a48e3514379886144dbb9a50d79d9b58a7a08",
+      "output_digest": "356c5abcb40ef0e2bccdc8ebe24c96841afc6f8ffa5d13ae2b863319696cc6cc",
+      "criterion_count": 9,
+      "extraction_method": "direct",
+      "financial_metrics": {
+        "revenue": "5000",
+        "gross_profit": "3000.0",
+        "burn": "1000.0",
+        "runway": "12",
+        "ltv": "720.0",
+        "cac_payback": "1E+1"
+      },
+      "report_html_len": 4471
+    },
+    {
+      "run_id": "dress-3",
+      "mamak_score": "40.0",
+      "band": "Needs significant validation",
+      "human_review_required": true,
+      "confidence_status": "PROVISIONAL_NOT_CLIENT_APPROVED",
+      "confidence_client_approved": false,
+      "provider": "offline",
+      "model_id": "offline-fixture-v1",
+      "rubric_digest": "fefde2c1d7247b20a549f2d70716f9dfd4361a3ab9ab7c66fcd337c0a1691e3a",
+      "prompt_digest": "4d2785b34f6bf27619024f362b634bd3e35ad0917b720418886c13ed1336b023",
+      "input_digest": "31c0c49c24ebc8c5092de3afa37a48e3514379886144dbb9a50d79d9b58a7a08",
+      "output_digest": "356c5abcb40ef0e2bccdc8ebe24c96841afc6f8ffa5d13ae2b863319696cc6cc",
+      "criterion_count": 9,
+      "extraction_method": "direct",
+      "financial_metrics": {
+        "revenue": "5000",
+        "gross_profit": "3000.0",
+        "burn": "1000.0",
+        "runway": "12",
+        "ltv": "720.0",
+        "cac_payback": "1E+1"
+      },
+      "report_html_len": 4471
+    }
+  ],
+  "checks": {
+    "determinism_identical_across_3_runs": true,
+    "every_evidence_quote_verbatim_in_source": true,
+    "nine_categories_scored": true,
+    "human_review_always_required": true,
+    "confidence_flagged_provisional": true,
+    "score_math_matches_client_formula": true,
+    "report_rendered": true
+  },
+  "all_checks_passed": true,
+  "caveat": "Offline deterministic provider (offline-fixture-v1). These runs verify pipeline integrity, determinism, grounding enforcement and scoring maths. They are NOT evidence of model judgement quality, which requires a configured hosted model and a human-agreement study (NOT_RUN)."
+}

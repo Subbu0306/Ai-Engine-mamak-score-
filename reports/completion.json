@@ -1,0 +1,165 @@
+{
+  "project": "MamakScore AI Engine",
+  "group": "PG-S2-29",
+  "client": "WEDO MEDIA PTY LTD / Mamak Mentor",
+  "generated_at": "2026-09-15T02:10:00Z",
+  "repository": {
+    "path": "/Users/akardhandewan/Desktop/Capstone Project",
+    "branch": "feature/full-local",
+    "commits": 3,
+    "remotes": 0,
+    "local_only": true,
+    "note": "No GitHub remote and no external deployment, per standing instruction."
+  },
+  "gates": [
+    {
+      "id": "G1",
+      "name": "Signed scope implemented",
+      "status": "PASS",
+      "evidence": "24 source modules covering FR1-FR14 (Must+Should), FR15 provisional MamakConfidence, FR17 version comparison. FR16 stage profiles and post-MVP roadmap excluded by agreed scope."
+    },
+    {
+      "id": "G2",
+      "name": "Test suite and coverage",
+      "status": "PASS",
+      "evidence": "68 passed, 0 failed. Coverage 87.79% against an 80% floor (pytest --cov-fail-under=80)."
+    },
+    {
+      "id": "G3",
+      "name": "Lint and formatting",
+      "status": "PASS",
+      "evidence": "ruff check: 'All checks passed!'; ruff format --check: '61 files already formatted'."
+    },
+    {
+      "id": "G4",
+      "name": "Static typing (mypy strict)",
+      "status": "PASS",
+      "evidence": "'Success: no issues found in 24 source files'. Reduced from 61 errors; two genuine latent defects fixed rather than silenced.",
+      "previously": "61 errors in 10 files"
+    },
+    {
+      "id": "G5",
+      "name": "Dependency and secret hygiene",
+      "status": "PASS_WITH_EXCEPTION",
+      "evidence": "pip check: 'No broken requirements found.' Secret scan across py/yaml/toml/md/json/env for api keys, bearer tokens, sk- keys, AKIA ids and PEM private keys: zero matches. .gitignore covers .env, .venv, caches, reports, uploads, build artefacts and demo files.",
+      "exception": "pip-audit is not installed in this environment; CVE audit recorded as NOT_RUN rather than assumed clean."
+    },
+    {
+      "id": "G6",
+      "name": "Offline dress rehearsals",
+      "status": "PASS",
+      "evidence": "reports/dress-rehearsal.json - 3 runs, 7/7 checks passed: byte-identical output digests across runs, every evidence quote verbatim in source, nine categories scored, human_review_required always true, confidence flagged PROVISIONAL_NOT_CLIENT_APPROVED, score maths matches the client formula, report rendered."
+    },
+    {
+      "id": "G7",
+      "name": "Clean-environment verification",
+      "status": "PASS",
+      "evidence": "Fresh venv, pip install from source: import OK, console script present, check-config returns status ok with rubric_version 3.0, full evaluate produces 15188 bytes with score 40.0. This gate caught and forced the fix of a real packaging defect (see finding F1)."
+    },
+    {
+      "id": "G8",
+      "name": "Live API contract verification",
+      "status": "PASS",
+      "evidence": "uvicorn on 127.0.0.1:8077 - GET /health 200; GET /ready 200 (mode offline, rubric 3.0); POST /api/evaluate public 200 with full assessment and provenance digests; POST /api/evaluate confidential 403 INVALID_REQUEST; .xlsx submitted as pitch_deck 415 UNSUPPORTED_FILE."
+    },
+    {
+      "id": "G9",
+      "name": "Code review (5 areas)",
+      "status": "PASS",
+      "evidence": "Python correctness, FastAPI/API contract, ML/scoring validity, security/privacy, and silent-failure review performed by reading the modules. Three defects found and fixed, one open low-severity finding recorded, one environment finding recorded."
+    },
+    {
+      "id": "G10",
+      "name": "Documentation currency",
+      "status": "PASS",
+      "evidence": "No stale 'itc' paths remain (apparent matches were the substring inside the word pitch). No stale rubric path references in README, Dockerfile, Makefile, compose.yaml, .env.example or docs/*.md. Historical spec and plan documents retain their original wording as dated records."
+    }
+  ],
+  "not_run": [
+    {
+      "item": "Human-expert agreement (quadratic weighted kappa)",
+      "status": "NOT_RUN_EXTERNAL_INPUT_REQUIRED",
+      "blocker": "Requires human-scored labels for the evaluation corpus. Harness exists (scripts/evaluate_labels.py, eval/labels.example.jsonl) but no real labels have been collected.",
+      "consequence": "There is no evidence the engine's scores agree with expert judgement."
+    },
+    {
+      "item": "Real-model accuracy, latency and cost",
+      "status": "NOT_RUN_EXTERNAL_INPUT_REQUIRED",
+      "blocker": "No LLM credentials configured. All runs to date use the deterministic OfflineProvider (offline-fixture-v1), which returns a fixed score of 4 on every category.",
+      "consequence": "Every score produced so far verifies plumbing, not judgement."
+    },
+    {
+      "item": "Fairness and bias evaluation",
+      "status": "NOT_RUN_EXTERNAL_INPUT_REQUIRED",
+      "blocker": "Requires a labelled corpus with varied founder and sector attributes."
+    },
+    {
+      "item": "Load and capacity testing",
+      "status": "NOT_RUN",
+      "blocker": "scripts/load_test.py exists and is typed, but was not executed in this session."
+    },
+    {
+      "item": "Dependency CVE audit (pip-audit)",
+      "status": "NOT_RUN",
+      "blocker": "pip-audit not installed in the environment."
+    }
+  ],
+  "findings": [
+    {
+      "id": "F1",
+      "severity": "high",
+      "status": "FIXED",
+      "area": "packaging / deployment",
+      "summary": "The engine resolved its rubric with Path(__file__).parents[2], a path that exists only in a source checkout. A normal pip install produced a working import and console script that then failed at runtime with FileNotFoundError.",
+      "fix": "Moved rubric/mamakscore-v3.yaml into src/mamakscore/data/, declared [tool.setuptools.package-data], repointed the 8 test files. Verified by reinstalling into a clean venv.",
+      "found_by": "G7 clean-environment verification"
+    },
+    {
+      "id": "F2",
+      "severity": "medium",
+      "status": "FIXED",
+      "area": "correctness / financial parsing",
+      "summary": "In workbook.py the candidates comprehension paired cells with _number(cell.value), typed Decimal or None, and never narrowed it. The subsequent greater-than comparison and division by Decimal(100) could execute against None.",
+      "fix": "Rebuilt as an explicit narrowing loop so only non-None Decimals enter candidates.",
+      "found_by": "G4 mypy strict"
+    },
+    {
+      "id": "F3",
+      "severity": "medium",
+      "status": "FIXED",
+      "area": "contract integrity",
+      "summary": "_period() returned a bare str into FinancialInput.period, which requires Literal monthly/annual/point_in_time/unknown. A typo would have produced a validation error at runtime instead of a type error at check time.",
+      "fix": "Introduced PeriodLiteral and annotated _period() with it.",
+      "found_by": "G4 mypy strict"
+    },
+    {
+      "id": "F4",
+      "severity": "low",
+      "status": "OPEN",
+      "area": "silent failure / evidence grounding",
+      "summary": "verify_red_flag_evidence() skips any red flag whose evidence_quote is empty, and RedFlag.evidence_quote defaults to an empty string. Category scores are held to a stricter rule (an empty quote is permitted only when score is 0 and the justification is exactly the not-stated text). A model could therefore emit an unevidenced red flag that passes grounding.",
+      "recommendation": "Either require a non-empty evidence_quote on RedFlag, or apply a category-style rule (empty quote permitted only for flag_type missing_information). Deferred because it changes a data contract and warrants client confirmation.",
+      "found_by": "G9 silent-failure review"
+    },
+    {
+      "id": "F5",
+      "severity": "environmental",
+      "status": "MITIGATED",
+      "area": "developer environment",
+      "summary": "The project lives on the Desktop, which is iCloud-synced (the CloudDocs Desktop entry is a symlink to ~/Desktop). Python stalled at 0% CPU on ordinary file reads: a run needing 1.08s of compute took 3m45s of wall clock.",
+      "fix": "Renamed .venv to .venv.nosync with a symlink, which excludes it from iCloud and cut interpreter startup from 90s to 2.1s. Verification runs were executed from a local scratchpad copy of identical bytes.",
+      "recommendation": "For sustained development, keep the working copy outside iCloud-synced Desktop, or exclude the project directory from sync."
+    }
+  ],
+  "safety_properties_verified": {
+    "human_review_always_required": true,
+    "no_automated_decline": true,
+    "confidential_processing_gated_403": true,
+    "evidence_grounding_enforced": true,
+    "confidence_flagged_not_client_approved": true,
+    "no_document_text_logged": true,
+    "no_uploads_persisted": true,
+    "cache_disabled_by_default": true
+  },
+  "honest_summary": "The engine is built, typed, tested, packaged, and verified end-to-end in a clean environment. Every score it has produced so far comes from a deterministic offline fixture and is not a judgement of any startup. Connecting a real model and running a human-agreement study are the two things standing between this and a defensible assessment tool."
+}

@@ -1,0 +1,1 @@
+{"application_id":"synthetic-001","human_total":50,"model_total":50,"human_scores":{"market":5},"model_scores":{"market":5},"grounded_quotes":9,"total_quotes":9,"fabrications":0,"runs":[50,50,50],"demographic_pair_delta":0,"latency_seconds":1,"cost_usd":0}

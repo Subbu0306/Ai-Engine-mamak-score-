@@ -1,0 +1,2 @@
+[console_scripts]
+mamakscore = mamakscore.cli:main
