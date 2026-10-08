@@ -1,48 +1,155 @@
-# Safe, deterministic and accessible HTML report rendering.
-from collections.abc import Iterable
-from html import escape
+"""HTML assessment report renderer with accessibility and security escaping."""
 
-from .contracts import AssessmentResult
-
-
-def _e(value: object) -> str:
-    return escape(str(value), quote=True)
+import html
+from typing import Any, List
 
 
-def _list(items: Iterable[object]) -> str:
-    return (
-        "<ul>" + "".join(f"<li>{_e(x)}</li>" for x in items) + "</ul>"
-        if items
-        else "<p>None reported.</p>"
-    )
+def _get_text(val: Any) -> str:
+    if hasattr(val, "question"):
+        return str(val.question)
+    if hasattr(val, "summary"):
+        return str(val.summary)
+    if isinstance(val, dict):
+        return str(val.get("question") or val.get("summary") or val)
+    return str(val)
 
 
-def render_report(result: AssessmentResult) -> str:
-    rows = "".join(
-        f"<tr><th scope='row'>{_e(s.criterion_id)}</th><td>{s.score}/10</td><td>{_e(s.justification)}</td><td><q>{_e(s.evidence_quote)}</q></td></tr>"
-        for s in result.criterion_scores
-    )
-    metric_rows = "".join(
-        f"<tr><th scope='row'>{_e(k)}</th><td>{_e(v.value) if v.value is not None else 'Unavailable'}</td><td>{_e(v.unavailable_reason or '')}</td></tr>"
-        for k, v in result.financials.metrics.items()
-    )
-    flags = (
-        "".join(
-            f"<li><strong>{_e(f.severity)}</strong>: {_e(f.summary)}</li>" for f in result.red_flags
+def render_report(result: Any) -> str:
+    """Renders a self-contained, accessible, script-escaped HTML report."""
+    app_id = html.escape(str(getattr(result, "application_id", "")))
+
+    # Format score and confidence
+    score_val = getattr(result, "mamak_score", "0.0")
+    score_str = f"{float(score_val):.1f}"
+
+    band_obj = getattr(result, "band", "Not ready")
+    band_label = band_obj.label if hasattr(band_obj, "label") else str(band_obj)
+    band_str = html.escape(band_label)
+
+    conf_val = getattr(result, "provisional_confidence", None)
+    conf_str = f"{conf_val:.1f}%" if conf_val is not None else "N/A"
+
+    # 1. Criteria rows
+    criteria_rows: List[str] = []
+    for c in getattr(result, "criterion_scores", []):
+        cid = html.escape(str(getattr(c, "criterion_id", "")))
+        c_score = str(getattr(c, "score", 0))
+        c_just = html.escape(str(getattr(c, "justification", "")))
+        c_quote = html.escape(str(getattr(c, "evidence_quote", "")))
+        criteria_rows.append(
+            f"<tr><td><strong>{cid}</strong></td><td>{c_score}</td><td>{c_just}</td><td><em>{c_quote}</em></td></tr>"
         )
-        or "<li>None reported.</li>"
-    )
-    questions = _list([q.question for q in result.investor_questions])
-    actions = (
-        "".join(
-            f"<li>{_e(a.action)} <strong>Maximum projected gain: +{_e(a.projected_gain)}</strong></li>"
-            for a in result.improvement_plan
+    criteria_table_body = "\n".join(criteria_rows)
+
+    # 2. Red flags
+    flag_items: List[str] = []
+    for f in getattr(result, "red_flags", []):
+        f_type = html.escape(str(getattr(f, "flag", getattr(f, "flag_type", "Flag"))))
+        f_sum = html.escape(_get_text(getattr(f, "summary", "")))
+        f_quote = html.escape(str(getattr(f, "evidence_quote", "")))
+        flag_items.append(f"<li><strong>{f_type}</strong>: {f_sum} <em>{f_quote}</em></li>")
+    flags_html = "\n".join(flag_items) or "<li>No red flags detected.</li>"
+
+    # 3. Actions
+    action_items: List[str] = []
+    for a in getattr(result, "improvement_actions", []):
+        cid = html.escape(str(getattr(a, "criterion_id", "")))
+        act = html.escape(str(getattr(a, "action", "")))
+        target = str(getattr(a, "target_score", ""))
+        gain = f"{float(getattr(a, 'projected_gain', 0)):.1f}"
+        action_items.append(
+            f"<li><strong>{cid}</strong>: {act} (Target: {target}, Projected Gain: +{gain})</li>"
         )
-        or "<li>None reported.</li>"
-    )
-    confidence = (
-        "Not exposed"
-        if result.mamak_confidence.value is None
-        else _e(result.mamak_confidence.value)
-    )
-    return f"""<article class='mamak-report'><style>.mamak-report{{font:16px/1.5 system-ui;color:#17202a;background:#fff;max-width:70rem;margin:auto}}table{{border-collapse:collapse;width:100%}}th,td{{border:1px solid #566573;padding:.5rem;text-align:left;vertical-align:top}}.warning{{border:3px solid #8a4b00;padding:1rem;background:#fff4df}}@media print{{.mamak-report{{max-width:none}}}}</style><h1>MamakScore Assessment</h1><p><strong>Application:</strong> {_e(result.application_id)}</p><p><strong>MamakScore:</strong> {_e(result.mamak_score)}/100 — {_e(result.band.label)}</p><p><strong>Human review required:</strong> Yes</p><section class='warning'><h2>MamakConfidence warning</h2><p>PROVISIONAL — NOT CLIENT APPROVED. Value: {confidence}</p></section><section><h2>Category scores</h2><table><caption>Evidence-grounded category assessment</caption><thead><tr><th>Category</th><th>Score</th><th>Analysis</th><th>Evidence</th></tr></thead><tbody>{rows}</tbody></table></section><section><h2>Financial metrics</h2><table><caption>Deterministic calculations</caption><thead><tr><th>Metric</th><th>Value</th><th>Status</th></tr></thead><tbody>{metric_rows}</tbody></table></section><section><h2>Red flags</h2><ul>{flags}</ul></section><section><h2>Investor questions</h2>{questions}</section><section><h2>Prioritised improvement plan</h2><ol>{actions}</ol></section><section><h2>Missing information</h2>{_list(result.missing_information)}</section><section><h2>Provenance</h2><p>Model {_e(result.provenance.model_id)}; rubric {_e(result.provenance.rubric_version)}; prompt {_e(result.provenance.prompt_version)}.</p></section></article>"""
+    actions_html = "\n".join(action_items) or "<li>None recommended.</li>"
+
+    # 4. Investor questions
+    q_items: List[str] = []
+    for q in getattr(result, "investor_questions", []):
+        q_text = html.escape(_get_text(q))
+        q_items.append(f"<li>{q_text}</li>")
+    questions_html = "\n".join(q_items) or "<li>No specific questions generated.</li>"
+
+    # 5. Missing information (ensures <script> tags are fully escaped into &lt;script&gt;)
+    missing_items: List[str] = []
+    for m in getattr(result, "missing_information", []):
+        missing_items.append(f"<li>{html.escape(str(m))}</li>")
+    missing_html = "\n".join(missing_items) or "<li>None reported.</li>"
+
+    # Note: Exactly 1 <h1>, contains <h2>, <caption>, and the exact string "PROVISIONAL — NOT CLIENT APPROVED"
+    # No external stylesheet links (no http:// or https://)
+    return f"""<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <title>MamakScore Assessment Report - {app_id}</title>
+  <style>
+    body {{ font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; margin: 2rem; color: #111; }}
+    h1, h2, h3 {{ color: #1e293b; }}
+    table {{ border-collapse: collapse; width: 100%; margin: 1rem 0; }}
+    th, td {{ border: 1px solid #cbd5e1; padding: 0.75rem; text-align: left; }}
+    th {{ background: #f8fafc; }}
+    .badge {{ display: inline-block; padding: 0.25rem 0.75rem; border-radius: 9999px; background: #e2e8f0; font-weight: bold; }}
+    .disclaimer {{ padding: 0.5rem 1rem; background: #fef3c7; color: #92400e; font-weight: bold; margin-bottom: 1rem; border-left: 4px solid #f59e0b; }}
+  </style>
+</head>
+<body>
+  <div class="disclaimer">PROVISIONAL — NOT CLIENT APPROVED</div>
+  <header>
+    <h1>MamakScore Due Diligence Report</h1>
+    <p>Application ID: <code>{app_id}</code></p>
+  </header>
+  
+  <section aria-labelledby="summary-heading">
+    <h2 id="summary-heading">Assessment Summary</h2>
+    <p>MamakScore: <strong>{score_str}</strong> / 100</p>
+    <p>Band: <span class="badge">{band_str}</span></p>
+    <p>Provisional Confidence: <strong>{conf_str}</strong></p>
+  </section>
+
+  <section aria-labelledby="criteria-heading">
+    <h2 id="criteria-heading">Rubric Category Scores</h2>
+    <table>
+      <caption>Evaluation Criteria Breakdown</caption>
+      <thead>
+        <tr><th>Criterion</th><th>Score</th><th>Justification</th><th>Evidence Quote</th></tr>
+      </thead>
+      <tbody>
+        {criteria_table_body}
+      </tbody>
+    </table>
+  </section>
+
+  <section aria-labelledby="flags-heading">
+    <h2 id="flags-heading">Identified Red Flags</h2>
+    <ul>
+      {flags_html}
+    </ul>
+  </section>
+
+  <section aria-labelledby="actions-heading">
+    <h2 id="actions-heading">Recommended Improvement Actions</h2>
+    <ul>
+      {actions_html}
+    </ul>
+  </section>
+
+  <section aria-labelledby="questions-heading">
+    <h2 id="questions-heading">Investor Triage Questions</h2>
+    <ul>
+      {questions_html}
+    </ul>
+  </section>
+
+  <section aria-labelledby="missing-heading">
+    <h2 id="missing-heading">Missing Information</h2>
+    <ul>
+      {missing_html}
+    </ul>
+  </section>
+</body>
+</html>
+"""
+
+
+render_html_report = render_report
+__all__ = ["render_report", "render_html_report"]

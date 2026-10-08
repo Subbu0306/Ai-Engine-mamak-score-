@@ -61,17 +61,16 @@ def test_cache_replays_without_second_provider_call(tmp_path):
 
 def test_ungrounded_provider_fails_whole_run(tmp_path):
     class Bad:
-        model_id = "bad"
-
-        def assess(self, request):
-            result = OfflineProvider(R, "deck.pdf").assess(request)
-            bad = result.draft.criterion_scores
-            bad[0] = bad[0].model_copy(update={"evidence_quote": "invented 999 customers"})
-            return ProviderResponse(
-                draft=result.draft.model_copy(update={"criterion_scores": bad}),
-                provider="bad",
-                model_id="bad",
-            )
+            model_id = "bad"
+            def assess(self, request):
+                result = OfflineProvider(R, "deck.pdf").assess(request)
+                bad = result.draft.criterion_scores
+                bad[0] = bad[0].model_copy(update={"evidence_quote": "invented 999 customers"})
+                return ProviderResponse(
+                    draft=result.draft.model_copy(update={"criterion_scores": bad}),
+                    provider="bad",
+                    model_id="bad",
+                )
 
     pipe = EvaluationPipeline(R, Bad(), cache=ReplayCache(tmp_path / "c.sqlite", enabled=False))
     with pytest.raises(ServiceError) as exc:

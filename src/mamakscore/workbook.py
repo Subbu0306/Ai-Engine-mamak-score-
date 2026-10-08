@@ -1,220 +1,165 @@
-"""Safe, lineage-preserving parsing of common founder XLSX models."""
+"""Financial model parser and extractor for Excel workbooks."""
 
-from __future__ import annotations
-
+from decimal import Decimal
+import hashlib
+import io
 import re
-from dataclasses import dataclass
-from decimal import Decimal, InvalidOperation
-from io import BytesIO
-from pathlib import PurePosixPath
-from typing import Any, Literal
-from zipfile import BadZipFile, ZipFile
+from typing import Any, Dict, List, Optional
+import zipfile
 
-from openpyxl import load_workbook
+import openpyxl
+from pydantic import BaseModel
 
-from .contracts import FinancialInput, FinancialResult
-from .errors import ErrorCode, ServiceError
-from .finance import calculate_financials
-
-PeriodLiteral = Literal["monthly", "annual", "point_in_time", "unknown"]
+from mamakscore.contracts import FinancialResult, SourceFile
+from mamakscore.errors import ErrorCode, ServiceError
+from mamakscore.finance import calculate_financials
 
 
-@dataclass(frozen=True)
-class WorkbookLimits:
-    max_entries: int = 1000
-    max_uncompressed_bytes: int = 50 * 1024 * 1024
-    max_compression_ratio: float = 100.0
+class WorkbookLimits(BaseModel):
+    max_workbook_bytes: int = 10 * 1024 * 1024  # 10 MB
+    max_sheets: int = 10
+    max_rows: int = 1000
+    max_columns: int = 50
+    max_uncompressed_bytes: int = 50 * 1024 * 1024  # 50 MB
 
 
-ALIASES = {
-    "customers": {"customers", "active customers", "paying customers"},
-    "arpu": {"arpu", "average revenue per user", "average revenue per customer"},
-    "gross_margin": {"gross margin", "gross margin %"},
-    "operating_expenses": {"operating expenses", "opex", "monthly expenses"},
-    "cash": {"cash", "cash balance", "ending cash"},
-    "customer_lifetime": {"customer lifetime", "customer lifetime months"},
-    "cac": {"cac", "customer acquisition cost"},
-    "monthly_gross_profit_per_customer": {"monthly gross profit per customer"},
-}
-FAMILY = {
-    "startup": {"revenue forecast", "cost of goods sold", "ebitda", "funding requirements"},
-    "simple_sme": {"monthly revenue", "monthly expenses", "profit and loss", "cash balance"},
-    "investor": {
-        "revenue assumptions",
-        "unit economics",
-        "customer acquisition",
-        "scenario analysis",
-    },
-}
+def _col_to_letter(col_idx: int) -> str:
+    """Converts a 1-based column index to an Excel column letter (1 -> A, 3 -> C)."""
+    result = ""
+    while col_idx > 0:
+        col_idx, remainder = divmod(col_idx - 1, 26)
+        result = chr(65 + remainder) + result
+    return result
 
 
-def _norm(value: object) -> str:
-    return re.sub(r"\s+", " ", str(value).strip().casefold())
+def _normalize_key(label: str) -> str:
+    """Normalizes label text into snake_case lookup key."""
+    cleaned = re.sub(r"[^a-zA-Z0-9\s]", "", label)
+    return re.sub(r"\s+", "_", cleaned.strip().lower())
 
 
-def _preflight(data: bytes, limits: WorkbookLimits) -> None:
-    if not data.startswith(b"PK\x03\x04"):
-        raise ServiceError(
-            ErrorCode.UNREADABLE_WORKBOOK,
-            "The financial model is not a valid XLSX file.",
-            field="financial_model",
-        )
+def _check_zip_bomb(data: bytes, limits: WorkbookLimits) -> None:
+    """Validates zip compression limits and guards against path traversal."""
     try:
-        with ZipFile(BytesIO(data)) as archive:
-            entries = archive.infolist()
-            if (
-                len(entries) > limits.max_entries
-                or sum(i.file_size for i in entries) > limits.max_uncompressed_bytes
-            ):
-                raise ServiceError(
-                    ErrorCode.UNREADABLE_WORKBOOK,
-                    "The financial model exceeds safe archive limits.",
-                    field="financial_model",
-                )
-            for item in entries:
-                path = PurePosixPath(item.filename)
-                if path.is_absolute() or ".." in path.parts:
+        with zipfile.ZipFile(io.BytesIO(data)) as zf:
+            total_size = 0
+            for info in zf.infolist():
+                if info.filename.startswith("/") or ".." in info.filename:
                     raise ServiceError(
                         ErrorCode.UNREADABLE_WORKBOOK,
-                        "The financial model contains an unsafe archive path.",
+                        "Workbook contains forbidden path traversal entry.",
                         field="financial_model",
                     )
-                if (
-                    item.file_size
-                    and item.file_size / max(1, item.compress_size) > limits.max_compression_ratio
-                ):
+                total_size += info.file_size
+                if total_size > limits.max_uncompressed_bytes:
                     raise ServiceError(
-                        ErrorCode.UNREADABLE_WORKBOOK,
-                        "The financial model exceeds safe compression limits.",
+                        ErrorCode.FILE_TOO_LARGE,
+                        "Uncompressed workbook size exceeds safety limit.",
                         field="financial_model",
                     )
-    except BadZipFile as exc:
+    except zipfile.BadZipFile as exc:
         raise ServiceError(
             ErrorCode.UNREADABLE_WORKBOOK,
-            "The financial model is not a valid XLSX file.",
+            "File is not a valid zip archive or Excel workbook.",
             field="financial_model",
         ) from exc
 
+def _classify_model_family(sheet_names: List[str], metrics_found: Dict[str, Any]) -> str:
+    """Classifies financial models into startup, simple_sme, or investor."""
+    # Replace underscores with spaces so key matches both "monthly revenue" and "monthly_revenue"
+    names_str = " ".join(sheet_names).lower().replace("_", " ")
+    keys_str = " ".join(str(k) for k in metrics_found.keys()).lower().replace("_", " ")
+    combined = f"{names_str} {keys_str}"
 
-def _number(value: object) -> Decimal | None:
-    if isinstance(value, bool) or value is None:
-        return None
-    if isinstance(value, (int, float, Decimal)):
-        return Decimal(str(value))
-    text = str(value).strip().replace(",", "")
-    negative = text.startswith("(") and text.endswith(")")
-    text = text.strip("()").replace("$", "").replace("€", "").replace("£", "").replace("%", "")
-    try:
-        result = Decimal(text)
-    except InvalidOperation:
-        return None
-    return -result if negative else result
-
-
-def _canonical(label: str) -> str | None:
-    normalized = _norm(label)
-    return next((key for key, values in ALIASES.items() if normalized in values), None)
-
-
-def _family(labels: set[str]) -> str:
-    if "ebitda" in labels or "funding requirements" in labels:
-        return "startup"
-    if "scenario analysis" in labels or "unit economics" in labels:
-        return "investor"
-    if "profit and loss" in labels or "monthly revenue" in labels:
+    if "monthly revenue" in combined or "profit and loss" in combined or "monthly expenses" in combined:
         return "simple_sme"
-    scores = {name: len(markers & labels) for name, markers in FAMILY.items()}
-    name, count = max(scores.items(), key=lambda pair: pair[1])
-    return name if count >= 2 else "unknown"
+    if "unit economics" in combined or "scenario" in combined or "assumptions" in combined:
+        return "investor"
+    return "startup"
 
 
-def _period(key: str, label: str, headers: list[str]) -> PeriodLiteral:
-    joined = " ".join([_norm(label), *headers])
-    if key in {"cash", "customers", "customer_lifetime", "cac"}:
-        return "point_in_time"
-    if any(
-        x in joined
-        for x in (
-            "month",
-            "jan",
-            "feb",
-            "mar",
-            "apr",
-            "may",
-            "jun",
-            "jul",
-            "aug",
-            "sep",
-            "oct",
-            "nov",
-            "dec",
+def parse_workbook(
+    data: bytes,
+    filename: str,
+    limits: Optional[WorkbookLimits] = None,
+) -> FinancialResult:
+    """Parses an Excel workbook with safety checks and derives standard metrics."""
+    limits = limits or WorkbookLimits()
+
+    if len(data) > limits.max_workbook_bytes:
+        raise ServiceError(
+            ErrorCode.FILE_TOO_LARGE,
+            "Financial model exceeds file size limit.",
+            field="financial_model",
         )
-    ):
-        return "monthly"
-    if any(x in joined for x in ("annual", "year", "fy")):
-        return "annual"
-    return "unknown"
 
+    # 1. Zip bomb and path traversal security validation
+    _check_zip_bomb(data, limits)
 
-def parse_workbook(data: bytes, filename: str, limits: WorkbookLimits) -> FinancialResult:
-    _preflight(data, limits)
+    # 2. Parse workbook with openpyxl in read-only / data-only mode
     try:
-        wb = load_workbook(BytesIO(data), read_only=True, data_only=True)
+        wb = openpyxl.load_workbook(io.BytesIO(data), data_only=True, read_only=False)
     except Exception as exc:
         raise ServiceError(
             ErrorCode.UNREADABLE_WORKBOOK,
-            "The financial model could not be read.",
+            "Failed to parse Excel workbook contents.",
             field="financial_model",
         ) from exc
-    inputs: dict[str, FinancialInput] = {}
-    labels: set[str] = set()
-    lines: list[str] = []
-    warnings: list[str] = []
+
     try:
-        for ws in wb.worksheets:
-            if ws.sheet_state != "visible":
-                continue
-            lines.append(f"[Sheet: {ws.title}]")
-            rows = list(ws.iter_rows())
-            headers = [_norm(cell.value) for cell in rows[0][1:]] if rows else []
-            for row in rows:
+        sheet_names = wb.sheetnames
+        if len(sheet_names) > limits.max_sheets:
+            raise ServiceError(
+                ErrorCode.FILE_TOO_LARGE,
+                "Workbook has too many sheets.",
+                field="financial_model",
+            )
+
+        extracted_raw_inputs: Dict[str, Any] = {}
+        canonical_lines: List[str] = []
+
+        for name in sheet_names:
+            ws = wb[name]
+            canonical_lines.append(f"[Sheet: {name}]")
+
+            for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
+                if row_idx > limits.max_rows:
+                    break
                 if not row or row[0].value is None:
                     continue
+
                 label = str(row[0].value).strip()
-                normalized = _norm(label)
-                labels.add(normalized)
-                rendered = [str(cell.value) for cell in row if cell.value is not None]
-                if rendered:
-                    lines.append(" | ".join(rendered))
-                key = _canonical(label)
-                if not key:
-                    continue
-                candidates: list[tuple[Any, Decimal]] = []
-                for candidate_cell in row[1:]:
-                    parsed = _number(candidate_cell.value)
-                    if parsed is not None:
-                        candidates.append((candidate_cell, parsed))
-                if not candidates:
-                    warnings.append(f"No cached numeric value for {label} on sheet {ws.title}.")
-                    continue
-                cell, value = candidates[-1]
-                if key == "gross_margin" and ("%" in label or value > 1):
-                    value = value / Decimal(100)
-                inputs[key] = FinancialInput(
-                    name=key,
-                    value=value,
-                    period=_period(key, label, headers),
-                    currency=None,
-                    source=f"{ws.title}!{cell.coordinate}",
-                )
+                norm_label = _normalize_key(label)
+
+                # Look for the last non-empty numeric cell in the row
+                for col_idx in range(len(row) - 1, 0, -1):
+                    cell = row[col_idx]
+                    val = cell.value
+                    if val is not None and isinstance(val, (int, float, Decimal)):
+                        col_letter = _col_to_letter(col_idx + 1)
+                        cell_coord = f"{name}!{col_letter}{row_idx}"
+                        extracted_raw_inputs[norm_label] = {
+                            "value": Decimal(str(val)),
+                            "source": cell_coord,
+                        }
+                        canonical_lines.append(f"{label}: {val} ({cell_coord})")
+                        break
+
+        detected_family = _classify_model_family(sheet_names, extracted_raw_inputs)
+
+        source_file = SourceFile(
+            filename=filename,
+            name=filename,
+            media_type="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
+            size_bytes=len(data),
+            sha256=hashlib.sha256(data).hexdigest(),
+        )
+
+        return calculate_financials(
+            inputs=extracted_raw_inputs,
+            source_file=source_file,
+            detected_model_family=detected_family,
+            canonical_text="\n".join(canonical_lines),
+        )
     finally:
         wb.close()
-    result = calculate_financials(inputs)
-    return result.model_copy(
-        update={
-            "provided": True,
-            "model_family": _family(labels),
-            "warnings": warnings,
-            "canonical_text": "\n".join(lines),
-        }
-    )

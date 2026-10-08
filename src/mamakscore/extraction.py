@@ -1,76 +1,76 @@
-"""In-memory PDF extraction with bounded optional vision fallback."""
-
-from __future__ import annotations
+"""PDF extraction module with PyMuPDF and optional vision fallback."""
 
 import hashlib
-from collections.abc import Mapping, Sequence
-from dataclasses import dataclass
-from typing import Any, Literal, Protocol
+import re
+from typing import Any, Dict, List, Literal, Optional, Protocol, Tuple
+import fitz as pymupdf
 
-import pymupdf
+from mamakscore.contracts import (
+    ExtractionLimits,
+    ExtractionResult,
+    PageDiagnostic,
+    SourceFile,
+)
+from mamakscore.errors import ErrorCode, ServiceError
 
-from .contracts import ExtractionResult, PageDiagnostic, SourceFile
-from .errors import ErrorCode, ServiceError
-
-
-@dataclass(frozen=True)
-class ExtractionLimits:
-    max_pdf_bytes: int = 20 * 1024 * 1024
-    max_pages: int = 60
-    max_text_characters: int = 120_000
-    min_page_characters: int = 40
-    min_alphanumeric_ratio: float = 0.35
-    max_render_side: int = 2048
-
-
-@dataclass(frozen=True)
 class RenderedPage:
-    number: int
-    png: bytes
-
+    def __init__(self, number: int, image_bytes: bytes):
+        self.number = number
+        self.image = image_bytes
 
 class VisionExtractor(Protocol):
-    def transcribe(self, pages: Sequence[RenderedPage]) -> Mapping[int, str]: ...
+    """Protocol for vision model transcription when text is sparse or image-only."""
+    def transcribe(self, images: List[bytes]) -> Dict[int, str]:
+        ...
 
 
-def _ratios(text: str) -> tuple[int, float, float]:
-    compact = [c for c in text if not c.isspace()]
-    count = len(compact)
-    if not count:
+def _ratios(text: str) -> Tuple[int, float, float]:
+    """Calculates character count, alphanumeric ratio, and printable ratio."""
+    count = len(text)
+    if count == 0:
         return 0, 0.0, 0.0
-    return (
-        count,
-        sum(c.isalnum() for c in compact) / count,
-        sum(c.isprintable() for c in compact) / count,
-    )
+
+    alpha = sum(1 for ch in text if ch.isalnum()) / count
+    printable = sum(1 for ch in text if ch.isprintable() or ch in "\n\r\t") / count
+    return count, alpha, printable
 
 
-def _render(page: Any, number: int, limit: int) -> RenderedPage:
-    longest = max(page.rect.width, page.rect.height)
-    zoom = min(2.0, limit / longest) if longest else 1.0
-    pix = page.get_pixmap(matrix=pymupdf.Matrix(zoom, zoom), alpha=False)  # type: ignore[no-untyped-call]
-    return RenderedPage(number=number, png=pix.tobytes("png"))
+def _render(page: Any, page_number: int, max_side: int) -> bytes:
+    """Renders a PDF page to PNG bytes for vision transcription."""
+    pix = page.get_pixmap(dpi=150)
+    return pix.tobytes("png")
 
 
 def extract_pdf(
-    data: bytes, filename: str, limits: ExtractionLimits, vision: VisionExtractor | None = None
+    data: bytes,
+    filename: str,
+    limits: ExtractionLimits,
+    vision: Optional[VisionExtractor] = None,
 ) -> ExtractionResult:
+    """Extracts canonical text from a PDF, enforcing security limits and handling vision fallback."""
     if not data.startswith(b"%PDF-"):
         raise ServiceError(
-            ErrorCode.UNSUPPORTED_FILE, "The pitch deck is not a valid PDF.", field="pitch_deck"
+            ErrorCode.UNSUPPORTED_FILE,
+            "The pitch deck is not a valid PDF.",
+            field="pitch_deck",
         )
+
     if len(data) > limits.max_pdf_bytes:
         raise ServiceError(
             ErrorCode.FILE_TOO_LARGE,
             "The pitch deck exceeds the configured size limit.",
             field="pitch_deck",
         )
+
     try:
-        doc = pymupdf.open(stream=data, filetype="pdf")  # type: ignore[no-untyped-call]
+        doc = pymupdf.open(stream=data, filetype="pdf")
     except Exception as exc:
         raise ServiceError(
-            ErrorCode.UNREADABLE_PDF, "The pitch deck could not be read.", field="pitch_deck"
+            ErrorCode.UNREADABLE_PDF,
+            "The pitch deck could not be read.",
+            field="pitch_deck",
         ) from exc
+
     try:
         if doc.needs_pass:
             raise ServiceError(
@@ -78,25 +78,32 @@ def extract_pdf(
                 "Password-protected pitch decks are not supported.",
                 field="pitch_deck",
             )
+
         if doc.page_count < 1:
             raise ServiceError(
-                ErrorCode.UNREADABLE_PDF, "The pitch deck has no pages.", field="pitch_deck"
+                ErrorCode.UNREADABLE_PDF,
+                "The pitch deck has no pages.",
+                field="pitch_deck",
             )
+
         if doc.page_count > limits.max_pages:
             raise ServiceError(
                 ErrorCode.FILE_TOO_LARGE,
                 "The pitch deck exceeds the page limit.",
                 field="pitch_deck",
             )
-        texts: dict[int, str] = {}
-        diagnostics: list[PageDiagnostic] = []
-        deficient: list[int] = []
+
+        texts: Dict[int, str] = {}
+        diagnostics: List[PageDiagnostic] = []
+        deficient: List[int] = []
+
         for index in range(doc.page_count):
             page: Any = doc[index]
             number = index + 1
             text = page.get_text("text", sort=True).strip()
             count, alpha, printable = _ratios(text)
             bad = count < limits.min_page_characters or alpha < limits.min_alphanumeric_ratio
+
             texts[number] = text
             diagnostics.append(
                 PageDiagnostic(
@@ -109,20 +116,24 @@ def extract_pdf(
             )
             if bad:
                 deficient.append(number)
-        used_vision: list[int] = []
+
+        used_vision: List[int] = []
         if deficient and vision is not None:
             rendered = [
-                _render(doc[number - 1], number, limits.max_render_side) for number in deficient
+                RenderedPage(number, _render(doc[number - 1], number, limits.max_render_side))
+                for number in deficient
             ]
-            transcribed: dict[int, str] = {}
+            transcribed: Dict[int, str] = {}
             for start in range(0, len(rendered), 4):
-                transcribed.update(vision.transcribe(rendered[start : start + 4]))
+                batch_res = vision.transcribe(rendered[start : start + 4])
+                transcribed.update(batch_res)
+
             for number in deficient:
-                text = transcribed.get(number, "").strip()
-                if text:
-                    texts[number] = text
+                t_text = transcribed.get(number, "").strip()
+                if t_text:
+                    texts[number] = t_text
                     used_vision.append(number)
-                    count, alpha, printable = _ratios(text)
+                    count, alpha, printable = _ratios(t_text)
                     diagnostics[number - 1] = PageDiagnostic(
                         page=number,
                         method="vision",
@@ -130,6 +141,7 @@ def extract_pdf(
                         alphanumeric_ratio=round(alpha, 4),
                         printable_ratio=round(printable, 4),
                     )
+
         if all(not text.strip() for text in texts.values()):
             code = ErrorCode.VISION_REQUIRED if vision is None else ErrorCode.UNREADABLE_PDF
             message = (
@@ -138,33 +150,40 @@ def extract_pdf(
                 else "No usable text could be extracted from the pitch deck."
             )
             raise ServiceError(code, message, field="pitch_deck")
+
         canonical = "\n\n".join(
             f"[Page {number}]\n{text}" for number, text in texts.items() if text.strip()
         )
+
         if len(canonical) > limits.max_text_characters:
             raise ServiceError(
                 ErrorCode.DOCUMENT_TOO_LARGE,
                 "The extracted pitch deck exceeds the model-input limit.",
                 field="pitch_deck",
             )
+
         method: Literal["direct", "vision", "hybrid"] = (
             "direct"
             if not used_vision
             else ("vision" if len(used_vision) == doc.page_count else "hybrid")
         )
+
+        # Passes both filename and name to ensure Pydantic contract compliance
         source = SourceFile(
+            filename=filename,
             name=filename,
             media_type="application/pdf",
             size_bytes=len(data),
             sha256=hashlib.sha256(data).hexdigest(),
         )
+
         return ExtractionResult(
-            source=source,
+            canonical_text=canonical,
+            diagnostics=diagnostics,
+            source_file=source,
             method=method,
             page_count=doc.page_count,
-            canonical_text=canonical,
-            pages=diagnostics,
-            text_characters=len(canonical),
+        
         )
     finally:
-        doc.close()  # type: ignore[no-untyped-call]
+        doc.close()

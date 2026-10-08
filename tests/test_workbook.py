@@ -87,3 +87,4 @@ def test_path_traversal_zip_is_rejected():
         z.writestr("../bad.xml", "x")
     with pytest.raises(ServiceError):
         parse_workbook(out.getvalue(), "bad.xlsx", WorkbookLimits())
+

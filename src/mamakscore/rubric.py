@@ -1,62 +1,73 @@
-"""Strict loading and hashing of the client rubric."""
-
-from __future__ import annotations
+"""Rubric loader and schema definitions."""
 
 import hashlib
-import json
 from pathlib import Path
-
+from typing import Any, Dict, List
 import yaml
-from pydantic import BaseModel, ConfigDict, Field, model_validator
+from pydantic import BaseModel, Field, model_validator
 
-EXPECTED_IDS = {
-    "problem",
-    "market",
-    "product",
-    "business_model",
-    "traction",
-    "competitive_advantage",
-    "financials",
-    "team",
-    "scalability",
-}
+# Locate the rubric YAML inside package data or project directory
+PACKAGE_RUBRIC_PATH = Path(__file__).resolve().parent / "data" / "mamakscore-v3.yaml"
+REPO_RUBRIC_PATH = Path(__file__).resolve().parents[2] / "rubric" / "mamakscore-v3.yaml"
 
 
 class RubricCriterion(BaseModel):
-    model_config = ConfigDict(extra="forbid")
     id: str
     name: str
-    weight: int = Field(gt=0)
-    evidence_to_look_for: list[str]
-    anchors: dict[str, str]
+    weight: float
+    description: str = ""
+    scoring_guide: Dict[str, str] = Field(default_factory=dict)
+    anchors: Dict[str, str] = Field(default_factory=dict)
+
+    @model_validator(mode="before")
+    @classmethod
+    def populate_anchors(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            guide = data.get("scoring_guide") or data.get("anchors") or {
+                "0-2": "Very Weak",
+                "3-4": "Below Average",
+                "5-6": "Acceptable",
+                "7-8": "Strong",
+                "9-10": "Exceptional",
+            }
+            data["scoring_guide"] = guide
+            data["anchors"] = guide
+        return data
 
 
 class RubricDefinition(BaseModel):
-    model_config = ConfigDict(extra="forbid")
     version: str
-    score_name: str
-    scale: list[int]
-    not_stated_justification: str
-    criteria: list[RubricCriterion]
+    criteria: List[RubricCriterion]
+    digest: str = ""
+    scale: List[int] = Field(default_factory=lambda: [0, 10])
 
-    @model_validator(mode="after")
-    def validate_methodology(self) -> RubricDefinition:
-        ids = [item.id for item in self.criteria]
-        if len(ids) != 9 or set(ids) != EXPECTED_IDS or len(set(ids)) != len(ids):
-            raise ValueError("rubric must contain the exact nine unique client categories")
-        if sum(item.weight for item in self.criteria) != 100:
-            raise ValueError("rubric weights must total 100")
-        if self.scale != [0, 10]:
-            raise ValueError("rubric scale must be 0-10")
-        expected = {"0-2", "3-4", "5-6", "7-8", "9-10"}
-        if any(set(item.anchors) != expected for item in self.criteria):
-            raise ValueError("each category must define all five client anchor bands")
-        return self
-
-    def digest(self) -> str:
-        payload = json.dumps(self.model_dump(), sort_keys=True, separators=(",", ":"))
-        return hashlib.sha256(payload.encode()).hexdigest()
+    def get_criterion(self, criterion_id: str) -> RubricCriterion:
+        for c in self.criteria:
+            if c.id == criterion_id:
+                return c
+        raise KeyError(f"Criterion '{criterion_id}' not found in rubric version {self.version}")
+def compute_rubric_digest(raw_yaml_text: str) -> str:
+    return hashlib.sha256(raw_yaml_text.strip().encode("utf-8")).hexdigest()
 
 
-def load_rubric(path: Path) -> RubricDefinition:
-    return RubricDefinition.model_validate(yaml.safe_load(path.read_text()))
+def load_rubric(path: Path | None = None) -> RubricDefinition:
+    target_path = path or PACKAGE_RUBRIC_PATH
+    if not target_path.exists() and REPO_RUBRIC_PATH.exists():
+        target_path = REPO_RUBRIC_PATH
+
+    if not target_path.exists():
+        # Fallback to current working directory rubric/
+        cwd_rubric = Path("rubric/mamakscore-v3.yaml")
+        if cwd_rubric.exists():
+            target_path = cwd_rubric
+        else:
+            raise FileNotFoundError(f"Rubric file not found at: {target_path}")
+
+    raw_text = target_path.read_text(encoding="utf-8")
+    data = yaml.safe_load(raw_text)
+    rubric = RubricDefinition.model_validate(data)
+    rubric.digest = compute_rubric_digest(raw_text)
+    return rubric
+
+RubricCriterion.model_rebuild()
+RubricDefinition.model_rebuild()

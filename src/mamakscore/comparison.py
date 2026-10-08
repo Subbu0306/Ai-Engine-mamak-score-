@@ -1,48 +1,69 @@
-"""Deterministic comparison of two assessment versions."""
+"""Comparison engine for assessing pitch deck revisions and before/after improvements."""
 
-from .contracts import CategoryMovement, ComparisonRequest, ComparisonResult
-from .errors import ErrorCode, ServiceError
+from decimal import Decimal
+from typing import Any, Dict, List, Optional
+
+from mamakscore.contracts import (
+    AssessmentSummary,
+    ComparableDelta,
+    ComparisonRequest,
+    ComparisonResult,
+)
+from mamakscore.errors import ErrorCode, ServiceError
 
 
 def compare_assessments(request: ComparisonRequest) -> ComparisonResult:
-    old, new = request.previous, request.current
-    if old.application_id != new.application_id:
+    """Compares two assessments, computing score differences and rubric warnings."""
+    prev = request.previous
+    curr = request.current
+
+    if prev.application_id != curr.application_id:
         raise ServiceError(
-            ErrorCode.INVALID_REQUEST,
-            "Assessments must belong to the same application.",
-            field="application_id",
+            ErrorCode.APPLICATION_MISMATCH,
+            f"Cannot compare assessments for different applications: '{prev.application_id}' vs '{curr.application_id}'.",
         )
-    old_scores = {item.criterion_id: item.score for item in old.criterion_scores}
-    new_scores = {item.criterion_id: item.score for item in new.criterion_scores}
-    if (
-        set(old_scores) != set(new_scores)
-        or len(old_scores) != len(old.criterion_scores)
-        or len(new_scores) != len(new.criterion_scores)
-    ):
-        raise ServiceError(ErrorCode.INVALID_REQUEST, "Assessment category sets must match.")
-    comparable = old.rubric_digest == new.rubric_digest
+
+    prev_missing = set(getattr(prev, "missing_information", []) or [])
+    curr_missing = set(getattr(curr, "missing_information", []) or [])
+    resolved = sorted(list(prev_missing - curr_missing))
+    new_missing = sorted(list(curr_missing - prev_missing))
+
+    warnings: List[str] = []
+    comparable = True
+    if prev.rubric_version != curr.rubric_version or prev.rubric_digest != curr.rubric_digest:
+        comparable = False
+        warnings.append(
+            f"Rubric versions differ between assessments ({prev.rubric_version} vs {curr.rubric_version})."
+        )
+
+    delta = curr.mamak_score - prev.mamak_score
+    delta_val = ComparableDelta(f"{delta:g}")
+
+    prev_scores = {s.criterion_id: s.score for s in prev.criterion_scores}
+    curr_scores = {s.criterion_id: s.score for s in curr.criterion_scores}
+
+    criterion_deltas: Dict[str, Any] = {}
+    all_keys = set(prev_scores.keys()) | set(curr_scores.keys())
+    for k in sorted(all_keys):
+        p_val = prev_scores.get(k, 0)
+        c_val = curr_scores.get(k, 0)
+        criterion_deltas[k] = {
+            "previous": p_val,
+            "current": c_val,
+            "delta": c_val - p_val,
+        }
+
     return ComparisonResult(
-        application_id=old.application_id,
         comparable=comparable,
-        warning=None
-        if comparable
-        else "Rubric versions differ; score movement is not directly comparable.",
-        categories=[
-            CategoryMovement(
-                criterion_id=i,
-                previous_score=old_scores[i],
-                current_score=new_scores[i],
-                delta=new_scores[i] - old_scores[i],
-            )
-            for i in old_scores
-        ],
-        previous_mamak_score=old.mamak_score,
-        current_mamak_score=new.mamak_score,
-        mamak_score_delta=new.mamak_score - old.mamak_score,
-        previous_band=old.band,
-        current_band=new.band,
-        resolved_missing_information=sorted(
-            set(old.missing_information) - set(new.missing_information)
-        ),
-        new_missing_information=sorted(set(new.missing_information) - set(old.missing_information)),
+        application_id=curr.application_id,
+        mamak_score_delta=delta_val,
+        previous_score=f"{prev.mamak_score:g}",
+        current_score=f"{curr.mamak_score:g}",
+        previous_band=prev.band,
+        current_band=curr.band,
+        criterion_deltas=criterion_deltas,
+        resolved_missing_information=resolved,
+        new_missing_information=new_missing,
+        categories=criterion_deltas,
+        warnings=warnings,
     )

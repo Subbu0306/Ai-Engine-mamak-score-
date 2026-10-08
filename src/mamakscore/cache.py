@@ -1,68 +1,98 @@
-# Optional content-addressed SQLite replay cache.
-from __future__ import annotations
+"""SQLite-backed deterministic replay cache for evaluation requests."""
 
 import hashlib
+import json
 import sqlite3
-from datetime import UTC, datetime
 from pathlib import Path
-
-from pydantic import ValidationError
-
-from .contracts import AssessmentDraft
+from typing import Optional
+from mamakscore.contracts import AssessmentDraft
 
 
 class ReplayCache:
-    def __init__(self, path: Path, enabled: bool = False) -> None:
-        self.path = Path(path)
+    """Caches AssessmentDraft objects keyed by SHA-256 of input parameters."""
+
+    def __init__(self, db_path: Path, enabled: bool = True):
+        self.db_path = db_path
         self.enabled = enabled
-        if enabled:
-            self._initialize()
+        if self.enabled:
+            self._init_db()
 
-    def _connect(self) -> sqlite3.Connection:
-        connection = sqlite3.connect(self.path, timeout=5)
-        connection.execute("PRAGMA journal_mode=WAL")
-        connection.execute("PRAGMA busy_timeout=5000")
-        return connection
-
-    def _initialize(self) -> None:
-        self.path.parent.mkdir(parents=True, exist_ok=True)
-        with self._connect() as db:
-            db.execute(
-                "CREATE TABLE IF NOT EXISTS replay (key TEXT PRIMARY KEY, payload TEXT NOT NULL, created_at TEXT NOT NULL)"
+    def _init_db(self) -> None:
+        self.db_path.parent.mkdir(parents=True, exist_ok=True)
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                """
+                CREATE TABLE IF NOT EXISTS assessment_cache (
+                    cache_key TEXT PRIMARY KEY,
+                    draft_json TEXT NOT NULL,
+                    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+                )
+                """
             )
+            conn.commit()
 
     @staticmethod
-    def make_key(*parts: str) -> str:
-        digest = hashlib.sha256()
-        for part in parts:
-            encoded = part.encode()
-            digest.update(len(encoded).to_bytes(8, "big"))
-            digest.update(encoded)
-        return digest.hexdigest()
+    def compute_cache_key(
+        input_digest: str,
+        model_id: str,
+        rubric_digest: str,
+        prompt_digest: str,
+    ) -> str:
+        """Computes deterministic key across all input dimensions."""
+        composite = f"{input_digest}:{model_id}:{rubric_digest}:{prompt_digest}"
+        return hashlib.sha256(composite.encode("utf-8")).hexdigest()
+    
+    @staticmethod
+    def make_key(*args: Any) -> str:
+        """Computes a deterministic hash across arbitrary input parameters."""
+        composite = ":".join(str(a) for a in args)
+        return hashlib.sha256(composite.encode("utf-8")).hexdigest()
 
-    def get(self, key: str) -> AssessmentDraft | None:
-        if not self.enabled:
-            return None
-        with self._connect() as db:
-            row = db.execute("SELECT payload FROM replay WHERE key=?", (key,)).fetchone()
-        if row is None:
+    def get(self, cache_key: str) -> Optional[AssessmentDraft]:
+        if not self.enabled or not self.db_path.exists():
             return None
         try:
-            return AssessmentDraft.model_validate_json(row[0])
-        except (ValidationError, ValueError):
-            with self._connect() as db:
-                db.execute("DELETE FROM replay WHERE key=?", (key,))
+            with sqlite3.connect(self.db_path) as conn:
+                cur = conn.cursor()
+                cur.execute(
+                    "SELECT draft_json FROM assessment_cache WHERE cache_key = ?",
+                    (cache_key,),
+                )
+                row = cur.fetchone()
+                if not row:
+                    return None
+                data = json.loads(row[0])
+                return AssessmentDraft.model_validate(data)
+        except Exception:
+            # Evict on malformed payload or read failure
+            self.evict(cache_key)
             return None
 
-    def put(self, key: str, value: AssessmentDraft) -> None:
-        if self.enabled:
-            self._put_raw(key, value.model_dump_json())
-
-    def _put_raw(self, key: str, payload: str) -> None:
+    def put(self, cache_key: str, draft: AssessmentDraft) -> None:
         if not self.enabled:
             return
-        with self._connect() as db:
-            db.execute(
-                "INSERT OR REPLACE INTO replay(key,payload,created_at) VALUES(?,?,?)",
-                (key, payload, datetime.now(UTC).isoformat()),
+        self._init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO assessment_cache (cache_key, draft_json) VALUES (?, ?)",
+                (cache_key, draft.model_dump_json()),
             )
+            conn.commit()
+    def _put_raw(self, cache_key: str, raw_text: str) -> None:
+        """Stores a raw string directly to test cache eviction and corruption handling."""
+        if not self.enabled:
+            return
+        self._init_db()
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute(
+                "INSERT OR REPLACE INTO assessment_cache (cache_key, draft_json) VALUES (?, ?)",
+                (cache_key, raw_text),
+            )
+            conn.commit()
+
+    def evict(self, cache_key: str) -> None:
+        if not self.enabled or not self.db_path.exists():
+            return
+        with sqlite3.connect(self.db_path) as conn:
+            conn.execute("DELETE FROM assessment_cache WHERE cache_key = ?", (cache_key,))
+            conn.commit()
