@@ -1,9 +1,13 @@
-"""PDF extraction module with PyMuPDF and optional vision fallback."""
+"""PDF Extraction module with PyMuPDF, safety limits, and vision-assisted fallback."""
 
+import base64
 import hashlib
+import os
 import re
-from typing import Any, Dict, List, Literal, Optional, Protocol, Tuple
-import fitz as pymupdf
+from typing import Any, Dict, List, Optional, Protocol
+import httpx
+import pymupdf as fitz
+from pydantic import BaseModel, Field
 
 from mamakscore.contracts import (
     ExtractionLimits,
@@ -11,179 +15,267 @@ from mamakscore.contracts import (
     PageDiagnostic,
     SourceFile,
 )
-from mamakscore.errors import ErrorCode, ServiceError
+from mamakscore.errors import ServiceError
 
-class RenderedPage:
-    def __init__(self, number: int, image_bytes: bytes):
-        self.number = number
-        self.image = image_bytes
+
+class DeficientPage(BaseModel):
+    """Container for deficient slides passed to batch vision transcribers."""
+    number: int
+    image_bytes: bytes
+
 
 class VisionExtractor(Protocol):
-    """Protocol for vision model transcription when text is sparse or image-only."""
-    def transcribe(self, images: List[bytes]) -> Dict[int, str]:
+    """Protocol for vision-based slide OCR and transcription."""
+    def transcribe(self, pages: List[Any]) -> Dict[int, str]:
         ...
 
 
-def _ratios(text: str) -> Tuple[int, float, float]:
-    """Calculates character count, alphanumeric ratio, and printable ratio."""
-    count = len(text)
-    if count == 0:
-        return 0, 0.0, 0.0
+class OpenAIVisionExtractor:
+    """Uses GPT-4o multimodal vision to transcribe slide text and data tables."""
 
-    alpha = sum(1 for ch in text if ch.isalnum()) / count
-    printable = sum(1 for ch in text if ch.isprintable() or ch in "\n\r\t") / count
-    return count, alpha, printable
+    def __init__(
+        self,
+        api_key: Optional[str] = None,
+        base_url: Optional[str] = None,
+        model_name: Optional[str] = None,
+        timeout: float = 45.0,
+    ):
+        self.api_key = api_key or os.getenv("OPENAI_API_KEY", "")
+        self.base_url = (base_url or os.getenv("OPENAI_BASE_URL", "https://api.openai.com/v1")).rstrip("/")
+        self.model_name = model_name or os.getenv("OPENAI_MODEL", "gpt-4o")
+        self.timeout = timeout
+
+    def transcribe(self, pages: List[Any]) -> Dict[int, str]:
+        results: Dict[int, str] = {}
+        for p in pages:
+            num = getattr(p, "number", 1)
+            img_bytes = getattr(p, "image_bytes", b"")
+            results[num] = self._transcribe_single_page(img_bytes, num)
+        return results
+
+    def _transcribe_single_page(self, image_bytes: bytes, page_number: int) -> str:
+        if not self.api_key:
+            return f"[Slide {page_number}: Vision transcription skipped (No API key)]"
+
+        b64_image = base64.b64encode(image_bytes).decode("utf-8")
+        headers = {
+            "Authorization": f"Bearer {self.api_key}",
+            "Content-Type": "application/json",
+        }
+        payload = {
+            "model": self.model_name,
+            "messages": [
+                {
+                    "role": "system",
+                    "content": (
+                        "You are a precise document transcription OCR engine. "
+                        "Transcribe ALL visible text, labels, headlines, bullet points, numbers, "
+                        "and metrics from this pitch deck slide verbatim. "
+                        "Do not add conversational fluff or commentary. Output raw slide content only."
+                    ),
+                },
+                {
+                    "role": "user",
+                    "content": [
+                        {"type": "text", "text": f"Transcribe slide #{page_number}."},
+                        {
+                            "type": "image_url",
+                            "image_url": {"url": f"data:image/png;base64,{b64_image}"},
+                        },
+                    ],
+                },
+            ],
+            "temperature": 0.0,
+            "max_tokens": 1200,
+        }
+
+        try:
+            with httpx.Client(timeout=self.timeout) as client:
+                resp = client.post(f"{self.base_url}/chat/completions", headers=headers, json=payload)
+                if resp.status_code >= 400:
+                    return f"[Slide {page_number}: Vision API error {resp.status_code}]"
+                data = resp.json()
+                return data["choices"][0]["message"]["content"].strip()
+        except Exception as e:
+            return f"[Slide {page_number}: Vision transcription failed ({str(e)})]"
 
 
-def _render(page: Any, page_number: int, max_side: int) -> bytes:
-    """Renders a PDF page to PNG bytes for vision transcription."""
-    pix = page.get_pixmap(dpi=150)
-    return pix.tobytes("png")
+def normalize_whitespace(text: str) -> str:
+    """Normalizes multiple consecutive whitespace characters and strips line edges."""
+    lines = [re.sub(r"[ \t]+", " ", line).strip() for line in text.splitlines()]
+    return "\n".join(lines).strip()
 
 
 def extract_pdf(
-    data: bytes,
-    filename: str,
-    limits: ExtractionLimits,
-    vision: Optional[VisionExtractor] = None,
+    pdf_bytes: Optional[bytes] = None,
+    deck_filename: str = "deck.pdf",
+    limits: Optional[ExtractionLimits] = None,
+    vision: Optional[Any] = None,
+    data: Optional[bytes] = None,
+    filename: Optional[str] = None,
+    **kwargs: Any,
 ) -> ExtractionResult:
-    """Extracts canonical text from a PDF, enforcing security limits and handling vision fallback."""
-    if not data.startswith(b"%PDF-"):
+    """Extracts text from a pitch deck PDF supporting both pdf_bytes and data keyword arguments."""
+    payload_bytes = pdf_bytes if pdf_bytes is not None else data
+    if payload_bytes is None:
+        raise ServiceError(code="INVALID_PDF", message="No PDF data bytes provided to extract_pdf.")
+
+    target_filename = filename or deck_filename or "deck.pdf"
+    limits = limits or ExtractionLimits()
+
+    # 1. Payload size bound
+    max_bytes = getattr(limits, "max_pdf_bytes", None) or getattr(limits, "max_total_bytes", 20 * 1024 * 1024)
+    if len(payload_bytes) > max_bytes:
         raise ServiceError(
-            ErrorCode.UNSUPPORTED_FILE,
-            "The pitch deck is not a valid PDF.",
-            field="pitch_deck",
+            code="FILE_TOO_LARGE",
+            message=f"PDF payload exceeds max limit of {max_bytes} bytes",
         )
 
-    if len(data) > limits.max_pdf_bytes:
+    # 2. Magic bytes / open document stream
+    if not payload_bytes.startswith(b"%PDF"):
         raise ServiceError(
-            ErrorCode.FILE_TOO_LARGE,
-            "The pitch deck exceeds the configured size limit.",
-            field="pitch_deck",
+            code="INVALID_PDF",
+            message="Invalid PDF: missing '%PDF' header magic bytes.",
         )
 
     try:
-        doc = pymupdf.open(stream=data, filetype="pdf")
-    except Exception as exc:
+        doc = fitz.open(stream=payload_bytes, filetype="pdf")
+    except Exception as e:
+        raise ServiceError(code="INVALID_PDF", message=f"Failed to open PDF stream: {e}")
+
+    # 3. Encryption check
+    if doc.is_encrypted:
+        raise ServiceError(code="ENCRYPTED_PDF", message="Password-protected PDFs are rejected.")
+
+    # 4. Page count bounds
+    page_count = len(doc)
+    if page_count == 0:
+        raise ServiceError(code="EMPTY_PDF", message="PDF contains 0 pages.")
+
+    if page_count > limits.max_pages:
         raise ServiceError(
-            ErrorCode.UNREADABLE_PDF,
-            "The pitch deck could not be read.",
-            field="pitch_deck",
-        ) from exc
+            code="EXCEEDED_PAGE_LIMIT",
+            message=f"PDF has {page_count} pages, exceeding max allowed ({limits.max_pages}).",
+        )
 
-    try:
-        if doc.needs_pass:
-            raise ServiceError(
-                ErrorCode.ENCRYPTED_PDF,
-                "Password-protected pitch decks are not supported.",
-                field="pitch_deck",
-            )
+    page_texts: List[str] = []
+    diagnostics: List[PageDiagnostic] = []
+    deficient_pages: List[DeficientPage] = []
+    deficient_indices: List[int] = []
 
-        if doc.page_count < 1:
-            raise ServiceError(
-                ErrorCode.UNREADABLE_PDF,
-                "The pitch deck has no pages.",
-                field="pitch_deck",
-            )
+    for page_idx in range(page_count):
+        page = doc[page_idx]
+        extracted_text = page.get_text("text") or ""
+        clean_text = normalize_whitespace(extracted_text)
 
-        if doc.page_count > limits.max_pages:
-            raise ServiceError(
-                ErrorCode.FILE_TOO_LARGE,
-                "The pitch deck exceeds the page limit.",
-                field="pitch_deck",
-            )
+        total_chars = len(clean_text)
+        alpha_chars = sum(1 for c in clean_text if c.isalnum())
+        printable_chars = sum(1 for c in clean_text if c.isprintable() or c in "\n\r\t")
 
-        texts: Dict[int, str] = {}
-        diagnostics: List[PageDiagnostic] = []
-        deficient: List[int] = []
+        alpha_ratio = (alpha_chars / total_chars) if total_chars > 0 else 0.0
+        printable_ratio = (printable_chars / total_chars) if total_chars > 0 else 1.0
 
-        for index in range(doc.page_count):
-            page: Any = doc[index]
-            number = index + 1
-            text = page.get_text("text", sort=True).strip()
-            count, alpha, printable = _ratios(text)
-            bad = count < limits.min_page_characters or alpha < limits.min_alphanumeric_ratio
+        is_deficient = (
+            total_chars < limits.min_page_characters
+            or alpha_ratio < limits.min_alphanumeric_ratio
+        )
 
-            texts[number] = text
+        if is_deficient:
+            pix = page.get_pixmap(dpi=150)
+            img_bytes = pix.tobytes("png")
+            deficient_pages.append(DeficientPage(number=page_idx + 1, image_bytes=img_bytes))
+            deficient_indices.append(page_idx)
+            page_texts.append("")
             diagnostics.append(
                 PageDiagnostic(
-                    page=number,
-                    method="empty" if bad else "direct",
-                    characters=count,
-                    alphanumeric_ratio=round(alpha, 4),
-                    printable_ratio=round(printable, 4),
+                    page=page_idx + 1,
+                    method="vision" if vision is not None else "empty",
+                    characters=0,
+                    alphanumeric_ratio=0.0,
+                    printable_ratio=0.0,
                 )
             )
-            if bad:
-                deficient.append(number)
-
-        used_vision: List[int] = []
-        if deficient and vision is not None:
-            rendered = [
-                RenderedPage(number, _render(doc[number - 1], number, limits.max_render_side))
-                for number in deficient
-            ]
-            transcribed: Dict[int, str] = {}
-            for start in range(0, len(rendered), 4):
-                batch_res = vision.transcribe(rendered[start : start + 4])
-                transcribed.update(batch_res)
-
-            for number in deficient:
-                t_text = transcribed.get(number, "").strip()
-                if t_text:
-                    texts[number] = t_text
-                    used_vision.append(number)
-                    count, alpha, printable = _ratios(t_text)
-                    diagnostics[number - 1] = PageDiagnostic(
-                        page=number,
-                        method="vision",
-                        characters=count,
-                        alphanumeric_ratio=round(alpha, 4),
-                        printable_ratio=round(printable, 4),
-                    )
-
-        if all(not text.strip() for text in texts.values()):
-            code = ErrorCode.VISION_REQUIRED if vision is None else ErrorCode.UNREADABLE_PDF
-            message = (
-                "Image-based pitch deck requires a configured vision model."
-                if vision is None
-                else "No usable text could be extracted from the pitch deck."
-            )
-            raise ServiceError(code, message, field="pitch_deck")
-
-        canonical = "\n\n".join(
-            f"[Page {number}]\n{text}" for number, text in texts.items() if text.strip()
-        )
-
-        if len(canonical) > limits.max_text_characters:
-            raise ServiceError(
-                ErrorCode.DOCUMENT_TOO_LARGE,
-                "The extracted pitch deck exceeds the model-input limit.",
-                field="pitch_deck",
+        else:
+            page_texts.append(f"[Page {page_idx + 1}]\n{clean_text}")
+            diagnostics.append(
+                PageDiagnostic(
+                    page=page_idx + 1,
+                    method="direct",
+                    characters=total_chars,
+                    alphanumeric_ratio=alpha_ratio,
+                    printable_ratio=printable_ratio,
+                )
             )
 
-        method: Literal["direct", "vision", "hybrid"] = (
-            "direct"
-            if not used_vision
-            else ("vision" if len(used_vision) == doc.page_count else "hybrid")
+    doc.close()
+
+    if deficient_pages:
+        if vision is None:
+            if len(deficient_pages) == page_count:
+                raise ServiceError(
+                    code="VISION_REQUIRED",
+                    message="All pages are image-only or low-text; vision OCR fallback is required.",
+                )
+        else:
+            transcriptions = vision.transcribe(deficient_pages)
+            for page_obj in deficient_pages:
+                idx = page_obj.number - 1
+                transcribed = transcriptions.get(page_obj.number, "")
+                clean_transcribed = normalize_whitespace(transcribed)
+                page_texts[idx] = f"[Page {page_obj.number}]\n{clean_transcribed}"
+                diagnostics[idx] = PageDiagnostic(
+                    page=page_obj.number,
+                    method="vision",
+                    characters=len(clean_transcribed),
+                    alphanumeric_ratio=1.0,
+                    printable_ratio=1.0,
+                )
+
+    canonical_text = "\n\n".join(t for t in page_texts if t.strip()).strip()
+
+    max_text_chars = getattr(limits, "max_text_characters", 120_000)
+    if len(canonical_text) > max_text_chars:
+        raise ServiceError(
+            code="DOCUMENT_TOO_LARGE",
+            message=f"Extracted text has {len(canonical_text)} characters, exceeding limit of {max_text_chars}.",
         )
 
-        # Passes both filename and name to ensure Pydantic contract compliance
-        source = SourceFile(
-            filename=filename,
-            name=filename,
-            media_type="application/pdf",
-            size_bytes=len(data),
-            sha256=hashlib.sha256(data).hexdigest(),
-        )
+    has_direct = any(d.method == "direct" for d in diagnostics)
+    has_vision = any(d.method == "vision" for d in diagnostics)
 
-        return ExtractionResult(
-            canonical_text=canonical,
-            diagnostics=diagnostics,
-            source_file=source,
-            method=method,
-            page_count=doc.page_count,
-        
-        )
-    finally:
-        doc.close()
+    if has_direct and has_vision:
+        method = "hybrid"
+    elif has_vision:
+        method = "vision"
+    else:
+        method = "direct"
+
+    sha256_hash = hashlib.sha256(payload_bytes).hexdigest()
+    source = SourceFile(
+        filename=target_filename,
+        name=target_filename,
+        media_type="application/pdf",
+        size_bytes=len(payload_bytes),
+        sha256=sha256_hash,
+    )
+
+    return ExtractionResult(
+        canonical_text=canonical_text,
+        diagnostics=diagnostics,
+        source_file=source,
+        source=source,
+        method=method,
+        page_count=page_count,
+    )
+
+
+__all__ = [
+    "DeficientPage",
+    "ExtractionLimits",
+    "PageDiagnostic",
+    "ExtractionResult",
+    "VisionExtractor",
+    "OpenAIVisionExtractor",
+    "normalize_whitespace",
+    "extract_pdf",
+]

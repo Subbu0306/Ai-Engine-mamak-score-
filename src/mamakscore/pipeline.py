@@ -1,6 +1,7 @@
 """Evaluation Pipeline Orchestrator."""
 
 import hashlib
+from decimal import Decimal
 from typing import Any, Dict, List, Optional
 
 from mamakscore.cache import ReplayCache
@@ -158,6 +159,15 @@ class EvaluationPipeline:
 
         # 8. Deterministic Scoring & Banding
         mamak_score = calculate_mamak_score(validated_draft.criterion_scores, self.rubric)
+        
+        # Dual-Gate Critical Flaw Score Cap
+        has_critical = any(
+            (getattr(rf, "severity", "") or "").lower() == "critical"
+            for rf in validated_draft.red_flags
+        )
+        if has_critical:
+            mamak_score = min(mamak_score, Decimal("39.9"))
+
         band = classify_score(mamak_score)
         improvement_actions = build_improvement_actions(
             validated_draft.improvement_actions,
@@ -174,11 +184,12 @@ class EvaluationPipeline:
             )
             d_total = len(financials.metrics) if financials.provided else 0
             conf_val = calculate_mamak_confidence(
-                verified_quotes_count=len([s for s in validated_draft.criterion_scores if s.evidence_quote]),
+                verified_quotes_count=len([s for s in validated_draft.criterion_scores if (s.evidence_quote or "").strip()]),
+                total_verified_quotes=len([s for s in validated_draft.criterion_scores if (s.evidence_quote or "").strip()]),
                 calculated_metrics_count=m_verified,
                 contradictions_count=0,
                 total_comparisons=d_total,
-                red_flags=[getattr(f, "flag", str(f)) for f in validated_draft.red_flags],
+                red_flags=validated_draft.red_flags,
                 has_financial_model=financials.provided,
             )
             conf_obj = ConfidenceContainer(

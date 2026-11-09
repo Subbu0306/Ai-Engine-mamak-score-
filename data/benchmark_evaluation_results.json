@@ -1,0 +1,956 @@
+[
+  {
+    "deck_name": "100Plus - 2021 - Series A.pdf",
+    "app_id": "eval_100plus_2021_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "1906 - 2019 - Series A.pdf",
+    "app_id": "eval_1906_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": true,
+    "target_score": 39.9,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "1Huddle - 2015 - Pre-Seed.pdf",
+    "app_id": "eval_1huddle_2015_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 60.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "43 layers - 2015 - Seed.pdf",
+    "app_id": "eval_43_layers_2015_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "7bridges - 2020 - Seed.pdf",
+    "app_id": "eval_7bridges_2020_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 62.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "98point6 - 2023 - Series E.pdf",
+    "app_id": "eval_98point6_2023_series_e",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AI Rudder - 2022 - Series B.pdf",
+    "app_id": "eval_ai_rudder_2022_series_b",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AMPAworks - 2019 - Pre-Seed.pdf",
+    "app_id": "eval_ampaworks_2019_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": true,
+    "target_score": 39.9,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AbbeyPost - 2014 - Seed.pdf",
+    "app_id": "eval_abbeypost_2014_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AceUp - 2019 - Seed.pdf",
+    "app_id": "eval_aceup_2019_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 58.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "ActivityHero - 2014 - Seed.pdf",
+    "app_id": "eval_activityhero_2014_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 56.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Adpushup - 2014.pdf",
+    "app_id": "eval_adpushup_2014",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 61.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Adventure Bucket List - 2017 - Seed.pdf",
+    "app_id": "eval_adventure_bucket_list_2017_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 36.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AfterSale (formerly Send4) - 2017.pdf",
+    "app_id": "eval_aftersale_formerly_send4_2017",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 38.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Agfunder - 2017 - Seed.pdf",
+    "app_id": "eval_agfunder_2017_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 59.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AirBnB - 2008 - Pre-Seed.pdf",
+    "app_id": "eval_airbnb_2008_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": true,
+    "target_score": 39.9,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AirHub - 2018 - Pre-Seed.pdf",
+    "app_id": "eval_airhub_2018_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 54.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Aircall - 2020 - Series C.pdf",
+    "app_id": "eval_aircall_2020_series_c",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 81.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Aisera - 2022 - Series D.pdf",
+    "app_id": "eval_aisera_2022_series_d",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 81.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alan - 2020 - Series C.pdf",
+    "app_id": "eval_alan_2020_series_c",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alation - 2022 - Series E.pdf",
+    "app_id": "eval_alation_2022_series_e",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 83.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alba - 2019 - Series A.pdf",
+    "app_id": "eval_alba_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Albert - 2015 - Pre-Seed.pdf",
+    "app_id": "eval_albert_2015_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AlfredCamera - 2015 - Seed.pdf",
+    "app_id": "eval_alfredcamera_2015_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 58.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alloy - 2021 - Seed.pdf",
+    "app_id": "eval_alloy_2021_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alluva - 2019 - Seed.pdf",
+    "app_id": "eval_alluva_2019_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 32.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Almabase - 2018 - Seed.pdf",
+    "app_id": "eval_almabase_2018_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 42.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Almanac - 2020 - Seed.pdf",
+    "app_id": "eval_almanac_2020_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 63.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Almost Friday - 2022 - Seed.pdf",
+    "app_id": "eval_almost_friday_2022_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 35.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Althea - 2016 - Series A.pdf",
+    "app_id": "eval_althea_2016_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alto Pharmacy - 2016 - Series A.pdf",
+    "app_id": "eval_alto_pharmacy_2016_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 77.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alumnify - 2014 - Seed.pdf",
+    "app_id": "eval_alumnify_2014_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 39.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Alyce - 2017 - Seed.pdf",
+    "app_id": "eval_alyce_2017_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 44.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Amagi - 2022 - Series F.pdf",
+    "app_id": "eval_amagi_2022_series_f",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 84.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Amify - 2019 - Series A.pdf",
+    "app_id": "eval_amify_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Amixr - 2020 - Seed.pdf",
+    "app_id": "eval_amixr_2020_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 57.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Angelcam - 2014 - Seed.pdf",
+    "app_id": "eval_angelcam_2014_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 59.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AppBind.pdf",
+    "app_id": "eval_appbind",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 37.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AppNexus - 2007 - Seed.pdf",
+    "app_id": "eval_appnexus_2007_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 82.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AppVirality - 2015 - Seed.pdf",
+    "app_id": "eval_appvirality_2015_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 62.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Apptite - 2017 - Seed.pdf",
+    "app_id": "eval_apptite_2017_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 34.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Apptopia - 2018 - Series A.pdf",
+    "app_id": "eval_apptopia_2018_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Apricity - 2019 - Series A.pdf",
+    "app_id": "eval_apricity_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Apteo - 2019 - Pre-Seed.pdf",
+    "app_id": "eval_apteo_2019_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 56.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "ArangoDB - 2019 - Series A.pdf",
+    "app_id": "eval_arangodb_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 80.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Arcus - 2019 - Series A.pdf",
+    "app_id": "eval_arcus_2019_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 61.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Ark Kapital - 2022 - Series A.pdf",
+    "app_id": "eval_ark_kapital_2022_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Arrcus - 2019 - Series B.pdf",
+    "app_id": "eval_arrcus_2019_series_b",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 55.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "ArtCorgi - 2014 - Seed.pdf",
+    "app_id": "eval_artcorgi_2014_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 31.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Ascend.io - 2017 - Series A.pdf",
+    "app_id": "eval_ascend_io_2017_series_a",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 78.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "AstroPrint - 2015 - Seed.pdf",
+    "app_id": "eval_astroprint_2015_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 57.5,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "Atexto - 2019 - Seed.pdf",
+    "app_id": "eval_atexto_2019_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": false,
+    "target_score": 58.0,
+    "mamak_score": 40.0
+  },
+  {
+    "deck_name": "eval_airbnb_2008_pre_seed.pdf",
+    "app_id": "eval_eval_airbnb_2008_pre_seed",
+    "scores": [
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4,
+      4
+    ],
+    "has_critical": true,
+    "target_score": 39.9,
+    "mamak_score": 40.0
+  }
+]

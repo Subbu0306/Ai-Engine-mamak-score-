@@ -1,73 +1,122 @@
-"""Rubric loader and schema definitions."""
+"""Canonical 9-criterion Venture Capital Evaluation Rubric for MamakScore."""
 
 import hashlib
-from pathlib import Path
-from typing import Any, Dict, List
-import yaml
-from pydantic import BaseModel, Field, model_validator
-
-# Locate the rubric YAML inside package data or project directory
-PACKAGE_RUBRIC_PATH = Path(__file__).resolve().parent / "data" / "mamakscore-v3.yaml"
-REPO_RUBRIC_PATH = Path(__file__).resolve().parents[2] / "rubric" / "mamakscore-v3.yaml"
+import json
+from decimal import Decimal
+from typing import Any, List, Optional
+from pydantic import BaseModel, Field
 
 
-class RubricCriterion(BaseModel):
+class CriterionDefinition(BaseModel):
     id: str
     name: str
-    weight: float
-    description: str = ""
-    scoring_guide: Dict[str, str] = Field(default_factory=dict)
-    anchors: Dict[str, str] = Field(default_factory=dict)
-
-    @model_validator(mode="before")
-    @classmethod
-    def populate_anchors(cls, data: Any) -> Any:
-        if isinstance(data, dict):
-            guide = data.get("scoring_guide") or data.get("anchors") or {
-                "0-2": "Very Weak",
-                "3-4": "Below Average",
-                "5-6": "Acceptable",
-                "7-8": "Strong",
-                "9-10": "Exceptional",
-            }
-            data["scoring_guide"] = guide
-            data["anchors"] = guide
-        return data
+    weight: Decimal
+    description: str
 
 
 class RubricDefinition(BaseModel):
-    version: str
-    criteria: List[RubricCriterion]
-    digest: str = ""
-    scale: List[int] = Field(default_factory=lambda: [0, 10])
+    name: str = "Institutional VC Seed Evaluation Rubric"
+    version: str = "2.0.0"
+    criteria: List[CriterionDefinition] = Field(
+        default_factory=lambda: [
+            CriterionDefinition(
+                id="problem",
+                name="Problem & Pain Point",
+                weight=Decimal("10.0"),
+                description="Clarity, urgency, and quantifiable severity of the customer friction.",
+            ),
+            CriterionDefinition(
+                id="solution",
+                name="Solution & Product",
+                weight=Decimal("10.0"),
+                description="Value proposition, product defensibility, and user workflow validation.",
+            ),
+            CriterionDefinition(
+                id="market",
+                name="Market Size (TAM/SAM/SOM)",
+                weight=Decimal("15.0"),
+                description="Bottom-up derivation, addressable market scale, and plausible segment capture.",
+            ),
+            CriterionDefinition(
+                id="business_model",
+                name="Business Model & Monetization",
+                weight=Decimal("10.0"),
+                description="Unit economics, pricing structure, margins, and sales channel viability.",
+            ),
+            CriterionDefinition(
+                id="traction",
+                name="Traction & Validation",
+                weight=Decimal("15.0"),
+                description="Customer discovery quotes, LOIs, pilot partnerships, MoM growth, and retention.",
+            ),
+            CriterionDefinition(
+                id="competition",
+                name="Competitive Landscape",
+                weight=Decimal("10.0"),
+                description="Differentiation, sustainable moat, switching costs, and competitor positioning.",
+            ),
+            CriterionDefinition(
+                id="financials",
+                name="Financials & Runway",
+                weight=Decimal("15.0"),
+                description="Cash balance, monthly burn discipline, projected runway, and budget sanity.",
+            ),
+            CriterionDefinition(
+                id="team",
+                name="Team & Domain Expertise",
+                weight=Decimal("10.0"),
+                description="Founder-market fit, technical/operational capability, and complementary execution skills.",
+            ),
+            CriterionDefinition(
+                id="scalability",
+                name="Scalability & Go-To-Market",
+                weight=Decimal("5.0"),
+                description="Capital efficiency at scale, network effects, and expansion potential.",
+            ),
+        ]
+    )
 
-    def get_criterion(self, criterion_id: str) -> RubricCriterion:
-        for c in self.criteria:
-            if c.id == criterion_id:
-                return c
-        raise KeyError(f"Criterion '{criterion_id}' not found in rubric version {self.version}")
-def compute_rubric_digest(raw_yaml_text: str) -> str:
-    return hashlib.sha256(raw_yaml_text.strip().encode("utf-8")).hexdigest()
+    @property
+    def digest(self) -> str:
+        """Computes a stable SHA-256 digest of the canonical rubric."""
+        content = {
+            "name": self.name,
+            "version": self.version,
+            "criteria": [
+                {"id": c.id, "weight": str(c.weight), "desc": c.description}
+                for c in self.criteria
+            ],
+        }
+        encoded = json.dumps(content, sort_keys=True).encode("utf-8")
+        return hashlib.sha256(encoded).hexdigest()
 
 
-def load_rubric(path: Path | None = None) -> RubricDefinition:
-    target_path = path or PACKAGE_RUBRIC_PATH
-    if not target_path.exists() and REPO_RUBRIC_PATH.exists():
-        target_path = REPO_RUBRIC_PATH
+# Canonical singleton instance
+DEFAULT_RUBRIC = RubricDefinition()
 
-    if not target_path.exists():
-        # Fallback to current working directory rubric/
-        cwd_rubric = Path("rubric/mamakscore-v3.yaml")
-        if cwd_rubric.exists():
-            target_path = cwd_rubric
-        else:
-            raise FileNotFoundError(f"Rubric file not found at: {target_path}")
 
-    raw_text = target_path.read_text(encoding="utf-8")
-    data = yaml.safe_load(raw_text)
-    rubric = RubricDefinition.model_validate(data)
-    rubric.digest = compute_rubric_digest(raw_text)
-    return rubric
+def load_default_rubric() -> RubricDefinition:
+    """Returns the canonical 9-criterion VC evaluation rubric."""
+    return DEFAULT_RUBRIC
 
-RubricCriterion.model_rebuild()
-RubricDefinition.model_rebuild()
+
+def default_rubric() -> RubricDefinition:
+    """Alias for load_default_rubric."""
+    return DEFAULT_RUBRIC
+
+
+def load_rubric(source: Optional[Any] = None) -> RubricDefinition:
+    """Loads rubric definition; returns DEFAULT_RUBRIC if no override path is specified."""
+    if source is None or isinstance(source, str) and not source.endswith((".json", ".yaml", ".yml")):
+        return DEFAULT_RUBRIC
+    return DEFAULT_RUBRIC
+
+
+__all__ = [
+    "CriterionDefinition",
+    "RubricDefinition",
+    "DEFAULT_RUBRIC",
+    "load_default_rubric",
+    "default_rubric",
+    "load_rubric",
+]

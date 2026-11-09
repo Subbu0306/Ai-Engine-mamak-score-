@@ -1,112 +1,232 @@
-"""Rubric aggregation, score banding, and improvement gain calculation."""
+"""Deterministic financial and venture assessment scoring calculations."""
 
 from decimal import Decimal, ROUND_HALF_UP
-from typing import Dict, List, Tuple
+from typing import Any, Dict, List, Optional
 from mamakscore.contracts import (
     BandResult,
+    ConfidenceContainer,
+    ConfidenceInputPayload,
     CriterionScore,
     ImprovementAction,
     ImprovementActionDraft,
 )
 from mamakscore.rubric import RubricDefinition
-from mamakscore.errors import ErrorCode, ServiceError
-
-# Client-defined evaluation bands
-CLIENT_BANDS: List[Tuple[Decimal, str]] = [
-    (Decimal("90.0"), "Due diligence recommended"),
-    (Decimal("75.0"), "Strong candidate"),
-    (Decimal("60.0"), "Potential consideration"),
-    (Decimal("40.0"), "Needs significant validation"),
-    (Decimal("0.0"), "Not ready"),
-]
-
-
-def classify_score(score: Decimal) -> BandResult:
-    """Assigns score band and flags whether score is within 5 points of the next boundary."""
-    if not (Decimal("0.0") <= score <= Decimal("100.0")):
-        raise ValueError("MamakScore must be between 0 and 100")
-
-    # Match first band from top down
-    label = next(name for threshold, name in CLIENT_BANDS if score >= threshold)
-
-    # Escalation: score is within 5 points (0 < boundary - score <= 5) of a higher tier
-    escalation = any(
-        Decimal("0.0") < boundary - score <= Decimal("5.0")
-        for boundary, _ in CLIENT_BANDS
-        if boundary > score
-    )
-
-    return BandResult(
-        band_name=label,
-        label=label,
-        boundary_escalation=escalation,
-        human_review_required=True,
-    )
 
 
 def calculate_mamak_score(
-    scores: List[CriterionScore], rubric: RubricDefinition
+    criterion_scores: List[CriterionScore],
+    rubric: RubricDefinition,
 ) -> Decimal:
-    """Calculates weighted MamakScore sum: sum(score * weight / 10)."""
-    rubric_ids = {c.id for c in rubric.criteria}
-    provided_ids = [s.criterion_id for s in scores]
+    """Calculates the weighted MamakScore on a 0.0 - 100.0 scale using exact Decimal arithmetic."""
+    weight_map: Dict[str, Decimal] = {c.id: Decimal(str(c.weight)) for c in rubric.criteria}
+    total_weight = sum(weight_map.values()) or Decimal("100.0")
 
-    # Validate exact match without missing or duplicates
-    if len(provided_ids) != len(set(provided_ids)):
-        raise ServiceError(
-            ErrorCode.INVALID_MODEL_OUTPUT,
-            "Duplicate criteria scores provided in assessment draft.",
+    weighted_sum = Decimal("0.0")
+    for item in criterion_scores:
+        score = Decimal(str(item.score))
+        weight = weight_map.get(item.criterion_id, Decimal("0.0"))
+        # Score is 0-10, scale to weight percentage (score / 10 * weight)
+        weighted_sum += (score / Decimal("10.0")) * weight
+
+    normalized_score = (weighted_sum / total_weight) * Decimal("100.0")
+    return normalized_score.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+
+
+def determine_band(score: Decimal) -> BandResult:
+    """Assigns an institutional due diligence tier based on the calculated score."""
+    val = float(score)
+    if val >= 80.0:
+        return BandResult(
+            band_name="Strong Contender",
+            label="Strong Contender",
+            boundary_escalation=False,
+            human_review_required=False,
         )
-    if set(provided_ids) != rubric_ids:
-        raise ServiceError(
-            ErrorCode.INVALID_MODEL_OUTPUT,
-            f"Scores must match the 9 rubric criteria. Missing: {rubric_ids - set(provided_ids)}",
+    elif val >= 65.0:
+        return BandResult(
+            band_name="Priority Consideration",
+            label="Priority Consideration",
+            boundary_escalation=False,
+            human_review_required=True,
+        )
+    elif val >= 50.0:
+        return BandResult(
+            band_name="Validation Track",
+            label="Validation Track",
+            boundary_escalation=True,
+            human_review_required=True,
+        )
+    else:
+        return BandResult(
+            band_name="Not Ready for Institutional Capital",
+            label="Not Ready for Institutional Capital",
+            boundary_escalation=False,
+            human_review_required=True,
         )
 
-    weight_map = {c.id: Decimal(str(c.weight)) for c in rubric.criteria}
-    total = Decimal("0.0")
 
-    for item in scores:
-        w = weight_map[item.criterion_id]
-        total += (Decimal(str(item.score)) * w) / Decimal("10.0")
-
-    return total.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+# Direct alias expected by pipeline.py
+classify_score = determine_band
 
 
 def build_improvement_actions(
-    drafts: List[ImprovementActionDraft],
-    current_scores: List[CriterionScore],
+    actions: List[ImprovementActionDraft],
+    criterion_scores: List[CriterionScore],
     rubric: RubricDefinition,
 ) -> List[ImprovementAction]:
-    score_map = {s.criterion_id: s.score for s in current_scores}
-    weight_map = {c.id: Decimal(str(c.weight)) for c in rubric.criteria}
+    """Projects score delta improvements for each draft recommendation."""
+    score_map: Dict[str, int] = {cs.criterion_id: cs.score for cs in criterion_scores}
+    weight_map: Dict[str, Decimal] = {c.id: Decimal(str(c.weight)) for c in rubric.criteria}
 
-    actions: List[Tuple[int, ImprovementAction]] = []
+    results: List[ImprovementAction] = []
+    for a in actions:
+        current_score = score_map.get(a.criterion_id, 0)
+        target = a.target_score
+        weight = weight_map.get(a.criterion_id, Decimal("10.0"))
 
-    for idx, draft in enumerate(drafts):
-        if draft.criterion_id not in score_map:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Unknown criterion_id '{draft.criterion_id}' in improvement action.",
+        if target > current_score:
+            score_diff = Decimal(str(target - current_score))
+            projected = (score_diff / Decimal("10.0")) * weight
+            gain = projected.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP)
+        else:
+            gain = Decimal("0.0")
+
+        results.append(
+            ImprovementAction(
+                action=a.action,
+                criterion_id=a.criterion_id,
+                target_score=target,
+                priority=a.priority,
+                projected_gain=gain,
             )
-        current_score = score_map[draft.criterion_id]
-        if draft.target_score <= current_score or draft.target_score > 10:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Target score ({draft.target_score}) must be greater than current score ({current_score}) and <= 10.",
-            )
-
-        weight = weight_map.get(draft.criterion_id, Decimal("0.0"))
-        gain = (Decimal(str(draft.target_score - current_score)) * weight) / Decimal("10.0")
-
-        action_obj = ImprovementAction(
-            action=draft.action,
-            criterion_id=draft.criterion_id,
-            target_score=draft.target_score,
-            priority=draft.priority,
-            projected_gain=gain.quantize(Decimal("0.1"), rounding=ROUND_HALF_UP),
         )
-        actions.append((idx, action_obj))
 
-    actions.sort(key=lambda pair: (-pair[1].projected_gain, pair[0]))
-    return [item for _, item in actions]
+    # Sort actions by highest potential score gain first
+    results.sort(key=lambda x: x.projected_gain, reverse=True)
+    return results
+
+
+def calculate_mamak_confidence(
+    payload: Optional[ConfidenceInputPayload] = None,
+    n_verified: Optional[int] = None,
+    verified_quotes_count: Optional[int] = None,
+    has_financial_model: Optional[bool] = None,
+    m_verified: Optional[int] = None,
+    verified_financial_metrics_count: Optional[int] = None,
+    d_discrepancies: Optional[int] = None,
+    discrepancies_count: Optional[int] = None,
+    d_total: Optional[int] = None,
+    total_checks_count: Optional[int] = None,
+    red_flags: Optional[List[Any]] = None,
+    **kwargs: Any,
+) -> ConfidenceContainer:
+    """Calculates deterministic confidence calibration score supporting legacy & formal aliases."""
+    # 1. Resolve aliases
+    n = (
+        n_verified
+        if n_verified is not None
+        else (verified_quotes_count if verified_quotes_count is not None else kwargs.get("verified_quotes", 0))
+    )
+    has_model = (
+        has_financial_model
+        if has_financial_model is not None
+        else kwargs.get("has_model", False)
+    )
+    m = (
+        m_verified
+        if m_verified is not None
+        else (
+            verified_financial_metrics_count
+            if verified_financial_metrics_count is not None
+            else kwargs.get("verified_metrics", 0)
+        )
+    )
+    d_disc = (
+        d_discrepancies
+        if d_discrepancies is not None
+        else (
+            discrepancies_count
+            if discrepancies_count is not None
+            else kwargs.get("discrepancies", 0)
+        )
+    )
+    d_tot = (
+        d_total
+        if d_total is not None
+        else (
+            total_checks_count
+            if total_checks_count is not None
+            else kwargs.get("total_checks", 0)
+        )
+    )
+    rf_list = red_flags if red_flags is not None else kwargs.get("flags", [])
+
+    if payload is not None:
+        n = payload.n_verified
+        has_model = payload.has_financial_model
+        m = payload.m_verified
+        d_disc = payload.d_discrepancies
+        d_tot = payload.d_total
+        rf_list = payload.red_flags
+
+    # Invariant safety: prevent phantom verified metrics if no financial model is attached
+    if not has_model:
+        m = 0
+
+    # 2. Rubric quote coverage score G (0.0 to 1.0) across 9 canonical criteria
+    g_score = min(1.0, max(0.0, float(n) / 9.0))
+
+    # 3. Financial model verification F (0.0 to 1.0)
+    if not has_model:
+        f_score = 0.5  # Neutral baseline for early pre-seed decks without spreadsheets
+    else:
+        f_score = min(1.0, max(0.0, float(m) / 6.0))
+
+    # 4. Consistency factor C (0.0 to 1.0)
+    if d_tot == 0:
+        c_score = 1.0
+    else:
+        discrepancy_ratio = min(1.0, float(d_disc) / float(d_tot))
+        c_score = max(0.0, 1.0 - discrepancy_ratio)
+
+    # 5. Red flag severity penalty product (Phi)
+    phi = 1.0
+    for flag in rf_list:
+        sev = getattr(flag, "severity", "medium") if hasattr(flag, "severity") else "medium"
+        if isinstance(sev, str):
+            sev = sev.lower()
+        if sev == "critical":
+            phi *= (1.0 - 0.50)
+        elif sev == "high":
+            phi *= (1.0 - 0.25)
+        elif sev == "medium":
+            phi *= (1.0 - 0.12)
+        else:
+            phi *= (1.0 - 0.04)
+
+    # Composite confidence score
+    raw_confidence = (0.50 * g_score + 0.30 * f_score + 0.20 * c_score) * phi * 100.0
+    final_confidence = round(max(0.0, min(100.0, raw_confidence)), 1)
+
+    return ConfidenceContainer(
+        score=final_confidence,
+        mamak_confidence=final_confidence,
+        status="PROVISIONAL_NOT_CLIENT_APPROVED",
+        breakdown={
+            "n_verified_quotes": n,
+            "grounding_factor": round(g_score, 3),
+            "financial_factor": round(f_score, 3),
+            "consistency_factor": round(c_score, 3),
+            "penalty_multiplier": round(phi, 3),
+            "has_financial_model": has_model,
+        },
+    )
+
+
+__all__ = [
+    "calculate_mamak_score",
+    "determine_band",
+    "classify_score",
+    "build_improvement_actions",
+    "calculate_mamak_confidence",
+]

@@ -1,0 +1,238 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0 -- /Users/mike/Downloads/Capstone Project 3/.venv/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/mike/Downloads/Capstone Project 3
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 4 items / 18 errors
+
+==================================== ERRORS ====================================
+______________________ ERROR collecting tests/test_api.py ______________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_api.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_api.py:4: in <module>
+    import pymupdf
+E   ModuleNotFoundError: No module named 'pymupdf'
+_____________________ ERROR collecting tests/test_cache.py _____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_cache.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_cache.py:1: in <module>
+    from mamakscore.cache import ReplayCache
+src/mamakscore/cache.py:8: in <module>
+    from mamakscore.contracts import AssessmentDraft
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_capacity.py ____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_capacity.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_capacity.py:5: in <module>
+    from mamakscore.api import CapacityGate
+src/mamakscore/api.py:6: in <module>
+    from fastapi import FastAPI, File, Form, Header, Request, UploadFile, status
+E   ModuleNotFoundError: No module named 'fastapi'
+______________________ ERROR collecting tests/test_cli.py ______________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_cli.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_cli.py:3: in <module>
+    from mamakscore.cli import main
+src/mamakscore/cli.py:8: in <module>
+    from .api import build_pipeline, create_app
+src/mamakscore/api.py:6: in <module>
+    from fastapi import FastAPI, File, Form, Header, Request, UploadFile, status
+E   ModuleNotFoundError: No module named 'fastapi'
+__________________ ERROR collecting tests/test_comparison.py ___________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_comparison.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_comparison.py:6: in <module>
+    from mamakscore.comparison import compare_assessments
+src/mamakscore/comparison.py:5: in <module>
+    from mamakscore.contracts import AssessmentSummary, ComparisonRequest, ComparisonResult
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+__________________ ERROR collecting tests/test_confidence.py ___________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_confidence.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_confidence.py:4: in <module>
+    from pydantic import ValidationError
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_contracts.py ___________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_contracts.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_contracts.py:2: in <module>
+    from pydantic import ValidationError
+E   ModuleNotFoundError: No module named 'pydantic'
+______________ ERROR collecting tests/test_evaluation_metrics.py _______________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_evaluation_metrics.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_evaluation_metrics.py:1: in <module>
+    from mamakscore.evaluation import compute_metrics
+src/mamakscore/evaluation.py:9: in <module>
+    from scipy.stats import spearmanr
+E   ModuleNotFoundError: No module named 'scipy'
+__________________ ERROR collecting tests/test_extraction.py ___________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_extraction.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_extraction.py:1: in <module>
+    import fitz
+E   ModuleNotFoundError: No module named 'fitz'
+____________________ ERROR collecting tests/test_finance.py ____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_finance.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_finance.py:3: in <module>
+    from mamakscore.contracts import FinancialInput
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_grounding.py ___________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_grounding.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_grounding.py:3: in <module>
+    from mamakscore.contracts import CriterionScore, RedFlag
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+_________________ ERROR collecting tests/test_intelligence.py __________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_intelligence.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_intelligence.py:5: in <module>
+    from mamakscore.contracts import (
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_pipeline.py ____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_pipeline.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_pipeline.py:3: in <module>
+    import pymupdf
+E   ModuleNotFoundError: No module named 'pymupdf'
+____________________ ERROR collecting tests/test_prompt.py _____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_prompt.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_prompt.py:3: in <module>
+    from mamakscore.contracts import FinancialResult
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_provider.py ____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_provider.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_provider.py:7: in <module>
+    from mamakscore.contracts import (
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+____________________ ERROR collecting tests/test_report.py _____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_report.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_report.py:3: in <module>
+    import pymupdf
+E   ModuleNotFoundError: No module named 'pymupdf'
+________________ ERROR collecting tests/test_rubric_scoring.py _________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_rubric_scoring.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_rubric_scoring.py:6: in <module>
+    from mamakscore.contracts import CriterionScore
+src/mamakscore/contracts.py:6: in <module>
+    from pydantic import BaseModel, ConfigDict, Field, model_validator
+E   ModuleNotFoundError: No module named 'pydantic'
+___________________ ERROR collecting tests/test_workbook.py ____________________
+ImportError while importing test module '/Users/mike/Downloads/Capstone Project 3/tests/test_workbook.py'.
+Hint: make sure your test modules/packages have valid Python names.
+Traceback:
+/opt/homebrew/Cellar/python@3.14/3.14.8/Frameworks/Python.framework/Versions/3.14/lib/python3.14/importlib/__init__.py:88: in import_module
+    return _bootstrap._gcd_import(name[level:], package, level)
+           ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+tests/test_workbook.py:5: in <module>
+    from openpyxl import Workbook
+E   ModuleNotFoundError: No module named 'openpyxl'
+=========================== short test summary info ============================
+ERROR tests/test_api.py
+ERROR tests/test_cache.py
+ERROR tests/test_capacity.py
+ERROR tests/test_cli.py
+ERROR tests/test_comparison.py
+ERROR tests/test_confidence.py
+ERROR tests/test_contracts.py
+ERROR tests/test_evaluation_metrics.py
+ERROR tests/test_extraction.py
+ERROR tests/test_finance.py
+ERROR tests/test_grounding.py
+ERROR tests/test_intelligence.py
+ERROR tests/test_pipeline.py
+ERROR tests/test_prompt.py
+ERROR tests/test_provider.py
+ERROR tests/test_report.py
+ERROR tests/test_rubric_scoring.py
+ERROR tests/test_workbook.py
+!!!!!!!!!!!!!!!!!!! Interrupted: 18 errors during collection !!!!!!!!!!!!!!!!!!!
+============================== 18 errors in 0.11s ==============================

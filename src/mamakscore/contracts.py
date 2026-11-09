@@ -6,6 +6,21 @@ from typing import Any, Dict, List, Literal, Optional, Union
 from pydantic import BaseModel, ConfigDict, Field, model_validator
 
 
+# --- Domain Exceptions ---
+
+class ServiceError(Exception):
+    """Domain exception for MamakScore engine failures."""
+
+    def __init__(self, code: str, message: str, status_code: int = 400):
+        super().__init__(message)
+        self.code = code
+        self.message = message
+        self.status_code = status_code
+
+    def __str__(self) -> str:
+        return f"[{self.code}] {self.message}"
+
+
 # --- Base Utilities & Comparators ---
 
 class ComparableDelta(str):
@@ -39,10 +54,10 @@ class SourceFile(BaseModel):
 
 class PageDiagnostic(BaseModel):
     page: int
-    method: Literal["direct", "vision", "empty"]
-    characters: int
-    alphanumeric_ratio: float
-    printable_ratio: float
+    method: Literal["direct", "vision", "empty", "text"] = "direct"
+    characters: int = 0
+    alphanumeric_ratio: float = 0.0
+    printable_ratio: float = 0.0
 
 
 class ExtractionResult(BaseModel):
@@ -50,7 +65,7 @@ class ExtractionResult(BaseModel):
     diagnostics: List[PageDiagnostic]
     source_file: SourceFile
     source: Optional[SourceFile] = None
-    method: Literal["direct", "vision", "hybrid"]
+    method: Literal["direct", "vision", "hybrid"] = "direct"
     page_count: int = 1
 
     @model_validator(mode="before")
@@ -171,44 +186,96 @@ class FinancialResult(BaseModel):
 # --- Scoring & Intelligence Contracts ---
 
 class CriterionScore(BaseModel):
-    model_config = ConfigDict(extra="forbid")
+    model_config = ConfigDict(extra="ignore")
 
     criterion_id: str
     score: int = Field(ge=0, le=10)
-    justification: str
+    justification: str = ""
     evidence_quote: str = ""
     source_file: str = "deck.pdf"
     confidence: Literal["low", "medium", "high"] = "medium"
 
+    @model_validator(mode="before")
+    @classmethod
+    def reconcile_criterion_score(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            # Capture any variation of justification
+            for key in ("justification", "reason", "reasoning", "analysis", "explanation", "evaluation"):
+                if key in data and data[key]:
+                    data["justification"] = str(data[key])
+                    break
+            if "evidence" in data and "evidence_quote" not in data:
+                data["evidence_quote"] = str(data["evidence"])
+        return data
 
 class RedFlag(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     flag: str = Field(default="")
     flag_type: Optional[str] = None
     severity: Literal["low", "medium", "high", "critical"] = "high"
     summary: str = ""
     evidence_quote: str = ""
+    trigger_mechanism: Optional[str] = None
     source_file: str = "deck.pdf"
 
     @model_validator(mode="before")
     @classmethod
     def reconcile_flag(cls, data: Any) -> Any:
+        if isinstance(data, str):
+            return {
+                "flag": data,
+                "flag_type": data,
+                "summary": data,
+                "severity": "medium",
+                "evidence_quote": "",
+                "trigger_mechanism": "Rule violation",
+            }
         if isinstance(data, dict):
-            val = data.get("flag") or data.get("flag_type") or data.get("summary") or "red_flag"
+            val = (
+                data.get("flag")
+                or data.get("flag_type")
+                or data.get("summary")
+                or data.get("title")
+                or "red_flag"
+            )
             data["flag"] = val
             data["flag_type"] = val
             if not data.get("summary"):
                 data["summary"] = val
+            if "evidence" in data and "evidence_quote" not in data:
+                data["evidence_quote"] = data["evidence"]
+            if "trigger_mechanism" not in data and "trigger" in data:
+                data["trigger_mechanism"] = data["trigger"]
+        return data
+    
+class ImprovementActionDraft(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
+    action: str
+    criterion_id: str = "general"
+    target_score: int = Field(default=8, ge=0, le=10)
+    priority: Literal["low", "medium", "high"] = "medium"
+
+    @model_validator(mode="before")
+    @classmethod
+    def reconcile_improvement(cls, data: Any) -> Any:
+        if isinstance(data, str):
+            return {
+                "action": data,
+                "criterion_id": "general",
+                "target_score": 8,
+                "priority": "medium",
+            }
+        if isinstance(data, dict):
+            if "recommendation" in data and "action" not in data:
+                data["action"] = data["recommendation"]
         return data
 
 
-class ImprovementActionDraft(BaseModel):
-    action: str
-    criterion_id: str
-    target_score: int = Field(ge=0, le=10)
-    priority: Literal["low", "medium", "high"] = "medium"
-
-
 class ImprovementAction(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     action: str
     criterion_id: str
     target_score: int
@@ -229,11 +296,103 @@ class InvestorQuestion(BaseModel):
 
 
 class AssessmentDraft(BaseModel):
+    model_config = ConfigDict(extra="ignore")
+
     criterion_scores: List[CriterionScore]
     red_flags: List[RedFlag] = Field(default_factory=list)
     improvement_actions: List[ImprovementActionDraft] = Field(default_factory=list)
     investor_questions: List[Union[str, InvestorQuestion]] = Field(default_factory=list)
     missing_information: List[str] = Field(default_factory=list)
+
+    @model_validator(mode="before")
+    @classmethod
+    def reconcile_draft_structure(cls, data: Any) -> Any:
+        if not isinstance(data, dict):
+            return data
+
+        # Normalize criterion_scores if given as a nested dict
+        if "criterion_scores" not in data:
+            scores_list = []
+            standard_criteria = {
+                "problem",
+                "solution",
+                "market",
+                "business_model",
+                "traction",
+                "competition",
+                "financials",
+                "team",
+                "scalability",
+            }
+            for key, val in list(data.items()):
+                if isinstance(val, dict) and "score" in val:
+                    val_dict = dict(val)
+                    val_dict.setdefault("criterion_id", key)
+                    scores_list.append(val_dict)
+                elif key in standard_criteria and isinstance(val, dict):
+                    val_dict = dict(val)
+                    val_dict.setdefault("criterion_id", key)
+                    val_dict.setdefault("score", 5)
+                    scores_list.append(val_dict)
+            if scores_list:
+                data["criterion_scores"] = scores_list
+        elif isinstance(data["criterion_scores"], dict):
+            data["criterion_scores"] = [
+                {**v, "criterion_id": k} if isinstance(v, dict) else {"criterion_id": k, "score": int(v)}
+                for k, v in data["criterion_scores"].items()
+            ]
+
+        # Normalize red_flags if given as a dict or nested lists
+        if "red_flags" in data:
+            rf = data["red_flags"]
+            if isinstance(rf, dict):
+                flattened_rf = []
+                for k, v in rf.items():
+                    if isinstance(v, list):
+                        for item in v:
+                            if isinstance(item, dict):
+                                item.setdefault("flag_type", k)
+                                flattened_rf.append(item)
+                            elif isinstance(item, str) and item.strip():
+                                flattened_rf.append({"flag": item, "flag_type": k, "summary": item})
+                    elif isinstance(v, str) and v.strip():
+                        flattened_rf.append({"flag": v, "flag_type": k, "summary": v})
+                data["red_flags"] = flattened_rf
+            elif isinstance(rf, list):
+                clean_rf = []
+                for item in rf:
+                    if isinstance(item, dict):
+                        clean_rf.append(item)
+                    elif isinstance(item, str) and item.strip():
+                        clean_rf.append({"flag": item, "summary": item})
+                data["red_flags"] = clean_rf
+
+        # Normalize improvement_actions if given as a dict
+        if "improvement_actions" in data and isinstance(data["improvement_actions"], dict):
+            flattened_ia = []
+            for k, v in data["improvement_actions"].items():
+                if isinstance(v, list):
+                    for item in v:
+                        if isinstance(item, dict):
+                            item.setdefault("criterion_id", k)
+                            flattened_ia.append(item)
+                        elif isinstance(item, str) and item.strip():
+                            flattened_ia.append({"action": item, "criterion_id": k})
+                elif isinstance(v, str) and v.strip():
+                    flattened_ia.append({"action": v, "criterion_id": k})
+            data["improvement_actions"] = flattened_ia
+
+        # Normalize missing_information if given as a dict
+        if "missing_information" in data and isinstance(data["missing_information"], dict):
+            flat_missing = []
+            for k, v in data["missing_information"].items():
+                if isinstance(v, list):
+                    flat_missing.extend(str(item) for item in v if item)
+                elif isinstance(v, str) and v.strip():
+                    flat_missing.append(v)
+            data["missing_information"] = flat_missing
+
+        return data
 
 
 class BandResult(BaseModel):
@@ -366,3 +525,31 @@ AssessmentDraft.model_rebuild()
 AssessmentResult.model_rebuild()
 FinancialResult.model_rebuild()
 ComparisonResult.model_rebuild()
+
+
+__all__ = [
+    "ServiceError",
+    "ComparableDelta",
+    "SourceFile",
+    "PageDiagnostic",
+    "ExtractionResult",
+    "ExtractionLimits",
+    "WorkbookLimits",
+    "MetricValue",
+    "FinancialInput",
+    "FinancialResult",
+    "CriterionScore",
+    "RedFlag",
+    "ImprovementActionDraft",
+    "ImprovementAction",
+    "InvestorQuestion",
+    "AssessmentDraft",
+    "BandResult",
+    "AssessmentSummary",
+    "ComparisonRequest",
+    "ComparisonResult",
+    "ConfidenceInputPayload",
+    "ConfidenceContainer",
+    "Provenance",
+    "AssessmentResult",
+]

@@ -1,0 +1,110 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/mike/Downloads/Capstone Project 3
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 83 items
+
+tests/test_api.py::test_health_ready_and_evaluate_contract PASSED        [  1%]
+tests/test_api.py::test_unsupported_and_confidential_inputs_are_controlled PASSED [  2%]
+tests/test_api.py::test_compare_endpoint PASSED                          [  3%]
+tests/test_cache.py::test_disabled_cache_creates_no_file PASSED          [  4%]
+tests/test_cache.py::test_round_trip_and_key_dimensions PASSED           [  6%]
+tests/test_cache.py::test_malformed_payload_is_evicted PASSED            [  7%]
+tests/test_capacity.py::test_capacity_rejects_then_recovers PASSED       [  8%]
+tests/test_cli.py::test_check_config_offline PASSED                      [  9%]
+tests/test_comparison.py::test_improvement_gain_is_code_calculated_and_sorted PASSED [ 10%]
+tests/test_comparison.py::test_bad_improvement_target_rejected PASSED    [ 12%]
+tests/test_comparison.py::test_comparison_and_rubric_warning PASSED      [ 13%]
+tests/test_comparison.py::test_comparison_requires_same_application PASSED [ 14%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[5-0-0-0-2-False-21.7] PASSED [ 15%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-5-0-5-0-True-94.2] PASSED [ 16%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[0-0-0-0-10-False-8.1] PASSED [ 18%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[24-6-0-6-0-True-100.0] PASSED [ 19%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-0-True-100.0] PASSED [ 20%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[12-4-0-0-0-True-61.7] PASSED [ 21%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-0-0-0-0-False-55.3] PASSED [ 22%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-1-True-85.0] PASSED [ 24%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-5-True-44.4] PASSED [ 25%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-6-True-40.0] PASSED [ 26%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-15-True-40.0] PASSED [ 27%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-8-5-0-True-70.0] PASSED [ 28%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-5-5-0-True-70.0] PASSED [ 30%]
+tests/test_confidence.py::test_confidence_breakdown_helper PASSED        [ 31%]
+tests/test_confidence.py::test_valid_payload PASSED                      [ 32%]
+tests/test_confidence.py::test_reject_phantom_financial_metrics PASSED   [ 33%]
+tests/test_confidence.py::test_reject_phantom_discrepancies PASSED       [ 34%]
+tests/test_confidence.py::test_reject_negative_integers PASSED           [ 36%]
+tests/test_contracts.py::test_criterion_score_rejects_out_of_range_and_extra_fields PASSED [ 37%]
+tests/test_documentation.py::test_complete_documentation_set_and_links PASSED [ 38%]
+tests/test_documentation.py::test_requirements_and_safety_are_explicit PASSED [ 39%]
+tests/test_evaluation_metrics.py::test_known_answer_metrics PASSED       [ 40%]
+tests/test_evaluation_metrics.py::test_missing_empirical_fields_are_not_run PASSED [ 42%]
+tests/test_extraction.py::test_text_pdf_extracts_directly PASSED         [ 43%]
+tests/test_extraction.py::test_image_only_uses_fake_vision PASSED        [ 44%]
+tests/test_extraction.py::test_mixed_pdf_only_sends_deficient_page PASSED [ 45%]
+tests/test_extraction.py::test_all_blank_without_vision_is_controlled PASSED [ 46%]
+tests/test_extraction.py::test_bad_magic_size_and_page_limits PASSED     [ 48%]
+tests/test_extraction.py::test_text_limit_is_controlled PASSED           [ 49%]
+tests/test_extraction.py::test_encrypted_pdf_is_rejected PASSED          [ 50%]
+tests/test_finance.py::test_all_client_formulas PASSED                   [ 51%]
+tests/test_finance.py::test_percent_margin_and_missing_inputs PASSED     [ 53%]
+tests/test_finance.py::test_non_positive_burn_and_zero_denominator_are_unavailable PASSED [ 54%]
+tests/test_finance.py::test_invalid_margin_is_reported_not_guessed PASSED [ 55%]
+tests/test_grounding.py::test_normalisation_accepts_smart_quotes_and_whitespace PASSED [ 56%]
+tests/test_grounding.py::test_altered_number_is_rejected PASSED          [ 57%]
+tests/test_grounding.py::test_empty_quote_only_valid_for_absent_score PASSED [ 59%]
+tests/test_grounding.py::test_flag_quote_must_be_grounded PASSED         [ 60%]
+tests/test_intelligence.py::test_valid_draft_passes PASSED               [ 61%]
+tests/test_intelligence.py::test_missing_or_duplicate_criterion_fails PASSED [ 62%]
+tests/test_intelligence.py::test_question_count_and_unknown_reference_fail PASSED [ 63%]
+tests/test_intelligence.py::test_empty_evidence_requires_zero_and_exact_reason PASSED [ 65%]
+tests/test_load_script.py::test_nearest_rank_and_summary PASSED          [ 66%]
+tests/test_pipeline.py::test_deck_only_pipeline_is_complete_and_grounded PASSED [ 67%]
+tests/test_pipeline.py::test_cache_replays_without_second_provider_call PASSED [ 68%]
+tests/test_pipeline.py::test_ungrounded_provider_fails_whole_run PASSED  [ 69%]
+tests/test_prompt.py::test_prompt_separates_untrusted_data_and_forbids_arithmetic PASSED [ 71%]
+tests/test_prompt.py::test_prompt_digest_is_independent_of_application_text PASSED [ 72%]
+tests/test_provider.py::test_hosted_provider_parses_structured_response PASSED [ 73%]
+tests/test_provider.py::test_retry_once_on_429 PASSED                    [ 74%]
+tests/test_provider.py::test_no_retry_or_body_leak_on_auth_error PASSED  [ 75%]
+tests/test_provider.py::test_offline_provider_is_deterministic_and_grounded PASSED [ 77%]
+tests/test_report.py::test_report_escapes_model_content_and_is_accessible PASSED [ 78%]
+tests/test_rubric_scoring.py::test_client_rubric_is_complete PASSED      [ 79%]
+tests/test_rubric_scoring.py::test_score_extremes PASSED                 [ 80%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[0-Not ready-False] PASSED [ 81%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[39.9-Not ready-True] PASSED [ 83%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[40-Needs significant validation-False] PASSED [ 84%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[59.9-Needs significant validation-True] PASSED [ 85%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[60-Potential consideration-False] PASSED [ 86%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[74.9-Potential consideration-True] PASSED [ 87%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[75-Strong candidate-False] PASSED [ 89%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[89.9-Strong candidate-True] PASSED [ 90%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[90-Due diligence recommended-False] PASSED [ 91%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[100-Due diligence recommended-False] PASSED [ 92%]
+tests/test_rubric_scoring.py::test_duplicate_or_missing_scores_are_rejected PASSED [ 93%]
+tests/test_sample_corpus.py::test_reproducible_disjoint_in_scope_sampling PASSED [ 95%]
+tests/test_workbook.py::test_startup_model_aliases_and_lineage PASSED    [ 96%]
+tests/test_workbook.py::test_three_model_families_are_classified PASSED  [ 97%]
+tests/test_workbook.py::test_corrupt_or_wrong_magic_is_controlled PASSED [ 98%]
+tests/test_workbook.py::test_path_traversal_zip_is_rejected PASSED       [100%]
+
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:491
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:491
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+../../../../opt/homebrew/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /opt/homebrew/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+======================== 83 passed, 6 warnings in 0.84s ========================

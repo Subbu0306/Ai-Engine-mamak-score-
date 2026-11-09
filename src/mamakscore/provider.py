@@ -44,7 +44,11 @@ class OfflineProvider:
         if "<untrusted_submission>" in user_text:
             body = user_text.split("<untrusted_submission>")[1].split("</untrusted_submission>")[0].strip()
         elif "=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===" in user_text:
-            body = user_text.split("=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[1].split("=== END UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[0].strip()
+            body = (
+                user_text.split("=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[1]
+                .split("=== END UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[0]
+                .strip()
+            )
 
         quote = ""
         for line in body.splitlines():
@@ -129,7 +133,7 @@ class OfflineProvider:
 
 
 class OpenAICompatibleProvider:
-    """Provider for hosted OpenAI compatible APIs with retries and error isolation."""
+    """Provider for hosted OpenAI compatible APIs with retries, adaptive timeouts, and error isolation."""
 
     def __init__(
         self,
@@ -138,6 +142,8 @@ class OpenAICompatibleProvider:
         model_name: Optional[str] = None,
         http_client: Optional[Any] = None,
         sleeper: Optional[Any] = None,
+        timeout: float = 120.0,
+        max_retries: int = 4,
     ):
         if base_url_or_key and base_url_or_key.startswith("http"):
             self.base_url = base_url_or_key
@@ -148,6 +154,8 @@ class OpenAICompatibleProvider:
             self.api_key = base_url_or_key or api_key or os.getenv("OPENAI_API_KEY", "")
             self.model_name = model_name or os.getenv("OPENAI_MODEL", "gpt-4o")
 
+        self.timeout = timeout
+        self.max_retries = max_retries
         self.http_client = http_client
         self.sleeper = sleeper or time.sleep
         self.provider_name = "openai-compatible"
@@ -168,7 +176,10 @@ class OpenAICompatibleProvider:
             "temperature": request.temperature,
         }
 
-        client = self.http_client or httpx.Client()
+        # Use an explicit 120s timeout configuration
+        timeout_config = httpx.Timeout(self.timeout, connect=20.0)
+        client = self.http_client or httpx.Client(timeout=timeout_config)
+
         url = (
             f"{self.base_url.rstrip('/')}/chat/completions"
             if self.base_url
@@ -176,17 +187,31 @@ class OpenAICompatibleProvider:
         )
 
         response = None
-        for attempt in range(2):
+        backoff_delays = [2.0, 4.0, 8.0, 16.0]
+
+        for attempt in range(self.max_retries):
             try:
-                res = client.post(url, headers=headers, json=payload)
+                # If custom client is passed without timeout, enforce request-level timeout
+                res = client.post(url, headers=headers, json=payload, timeout=self.timeout)
+            except (httpx.ReadTimeout, httpx.WriteTimeout, httpx.ConnectTimeout) as exc:
+                if attempt < self.max_retries - 1:
+                    sleep_time = backoff_delays[min(attempt, len(backoff_delays) - 1)]
+                    self.sleeper(sleep_time)
+                    continue
+                raise ServiceError(
+                    ErrorCode.PROVIDER_ERROR,
+                    f"LLM request timed out after {self.timeout}s: {str(exc)}",
+                    retryable=True,
+                )
             except Exception as exc:
                 raise ServiceError(
                     ErrorCode.PROVIDER_ERROR, f"Connection failed: {str(exc)}", retryable=False
                 )
 
             if res.status_code == 429:
-                if attempt == 0:
-                    self.sleeper(1.0)
+                if attempt < self.max_retries - 1:
+                    sleep_time = backoff_delays[min(attempt, len(backoff_delays) - 1)]
+                    self.sleeper(sleep_time)
                     continue
                 raise ServiceError(
                     ErrorCode.OVER_CAPACITY, "Provider rate limit reached.", retryable=True
@@ -197,10 +222,20 @@ class OpenAICompatibleProvider:
                     "Authentication failed with LLM provider.",
                     retryable=False,
                 )
+            if res.status_code >= 500:
+                if attempt < self.max_retries - 1:
+                    sleep_time = backoff_delays[min(attempt, len(backoff_delays) - 1)]
+                    self.sleeper(sleep_time)
+                    continue
+                raise ServiceError(
+                    ErrorCode.PROVIDER_ERROR,
+                    f"Provider returned server error {res.status_code}",
+                    retryable=True,
+                )
             if res.status_code >= 400:
                 raise ServiceError(
                     ErrorCode.PROVIDER_ERROR,
-                    f"Provider returned error status {res.status_code}",
+                    f"Provider returned error status {res.status_code}: {res.text[:200]}",
                     retryable=False,
                 )
 
@@ -234,4 +269,10 @@ class OpenAICompatibleProvider:
 
 
 OpenAIProvider = OpenAICompatibleProvider
-__all__ = ["OfflineProvider", "OpenAIProvider", "OpenAICompatibleProvider", "ProviderResponse"]
+__all__ = [
+    "ProviderRequest",
+    "OfflineProvider",
+    "OpenAIProvider",
+    "OpenAICompatibleProvider",
+    "ProviderResponse",
+]

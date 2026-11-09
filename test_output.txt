@@ -1,0 +1,1434 @@
+============================= test session starts ==============================
+platform darwin -- Python 3.14.8, pytest-9.1.1, pluggy-1.6.0 -- /opt/homebrew/opt/python@3.14/bin/python3.14
+cachedir: .pytest_cache
+rootdir: /Users/mike/Downloads/Capstone Project 3
+configfile: pyproject.toml
+plugins: anyio-4.15.1
+collecting ... collected 83 items
+
+tests/test_api.py::test_health_ready_and_evaluate_contract FAILED        [  1%]
+tests/test_api.py::test_unsupported_and_confidential_inputs_are_controlled PASSED [  2%]
+tests/test_api.py::test_compare_endpoint PASSED                          [  3%]
+tests/test_cache.py::test_disabled_cache_creates_no_file PASSED          [  4%]
+tests/test_cache.py::test_round_trip_and_key_dimensions PASSED           [  6%]
+tests/test_cache.py::test_malformed_payload_is_evicted PASSED            [  7%]
+tests/test_capacity.py::test_capacity_rejects_then_recovers PASSED       [  8%]
+tests/test_cli.py::test_check_config_offline PASSED                      [  9%]
+tests/test_comparison.py::test_improvement_gain_is_code_calculated_and_sorted PASSED [ 10%]
+tests/test_comparison.py::test_bad_improvement_target_rejected PASSED    [ 12%]
+tests/test_comparison.py::test_comparison_and_rubric_warning FAILED      [ 13%]
+tests/test_comparison.py::test_comparison_requires_same_application PASSED [ 14%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[5-0-0-0-2-False-21.7] PASSED [ 15%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-5-0-5-0-True-94.2] PASSED [ 16%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[0-0-0-0-10-False-8.1] PASSED [ 18%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[24-6-0-6-0-True-100.0] PASSED [ 19%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-0-True-100.0] PASSED [ 20%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[12-4-0-0-0-True-61.7] PASSED [ 21%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-0-0-0-0-False-55.3] PASSED [ 22%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-1-True-85.0] PASSED [ 24%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-5-True-44.4] PASSED [ 25%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-6-True-40.0] PASSED [ 26%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-0-6-15-True-40.0] PASSED [ 27%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-8-5-0-True-70.0] PASSED [ 28%]
+tests/test_confidence.py::test_confidence_mathematical_boundaries[18-6-5-5-0-True-70.0] PASSED [ 30%]
+tests/test_confidence.py::test_confidence_breakdown_helper PASSED        [ 31%]
+tests/test_confidence.py::test_valid_payload PASSED                      [ 32%]
+tests/test_confidence.py::test_reject_phantom_financial_metrics PASSED   [ 33%]
+tests/test_confidence.py::test_reject_phantom_discrepancies PASSED       [ 34%]
+tests/test_confidence.py::test_reject_negative_integers PASSED           [ 36%]
+tests/test_contracts.py::test_criterion_score_rejects_out_of_range_and_extra_fields PASSED [ 37%]
+tests/test_documentation.py::test_complete_documentation_set_and_links PASSED [ 38%]
+tests/test_documentation.py::test_requirements_and_safety_are_explicit PASSED [ 39%]
+tests/test_evaluation_metrics.py::test_known_answer_metrics PASSED       [ 40%]
+tests/test_evaluation_metrics.py::test_missing_empirical_fields_are_not_run PASSED [ 42%]
+tests/test_extraction.py::test_text_pdf_extracts_directly PASSED         [ 43%]
+tests/test_extraction.py::test_image_only_uses_fake_vision PASSED        [ 44%]
+tests/test_extraction.py::test_mixed_pdf_only_sends_deficient_page PASSED [ 45%]
+tests/test_extraction.py::test_all_blank_without_vision_is_controlled PASSED [ 46%]
+tests/test_extraction.py::test_bad_magic_size_and_page_limits PASSED     [ 48%]
+tests/test_extraction.py::test_text_limit_is_controlled PASSED           [ 49%]
+tests/test_extraction.py::test_encrypted_pdf_is_rejected PASSED          [ 50%]
+tests/test_finance.py::test_all_client_formulas FAILED                   [ 51%]
+tests/test_finance.py::test_percent_margin_and_missing_inputs FAILED     [ 53%]
+tests/test_finance.py::test_non_positive_burn_and_zero_denominator_are_unavailable FAILED [ 54%]
+tests/test_finance.py::test_invalid_margin_is_reported_not_guessed FAILED [ 55%]
+tests/test_grounding.py::test_normalisation_accepts_smart_quotes_and_whitespace PASSED [ 56%]
+tests/test_grounding.py::test_altered_number_is_rejected PASSED          [ 57%]
+tests/test_grounding.py::test_empty_quote_only_valid_for_absent_score PASSED [ 59%]
+tests/test_grounding.py::test_flag_quote_must_be_grounded PASSED         [ 60%]
+tests/test_intelligence.py::test_valid_draft_passes PASSED               [ 61%]
+tests/test_intelligence.py::test_missing_or_duplicate_criterion_fails PASSED [ 62%]
+tests/test_intelligence.py::test_question_count_and_unknown_reference_fail PASSED [ 63%]
+tests/test_intelligence.py::test_empty_evidence_requires_zero_and_exact_reason PASSED [ 65%]
+tests/test_load_script.py::test_nearest_rank_and_summary PASSED          [ 66%]
+tests/test_pipeline.py::test_deck_only_pipeline_is_complete_and_grounded FAILED [ 67%]
+tests/test_pipeline.py::test_cache_replays_without_second_provider_call FAILED [ 68%]
+tests/test_pipeline.py::test_ungrounded_provider_fails_whole_run FAILED  [ 69%]
+tests/test_prompt.py::test_prompt_separates_untrusted_data_and_forbids_arithmetic PASSED [ 71%]
+tests/test_prompt.py::test_prompt_digest_is_independent_of_application_text PASSED [ 72%]
+tests/test_provider.py::test_hosted_provider_parses_structured_response FAILED [ 73%]
+tests/test_provider.py::test_retry_once_on_429 FAILED                    [ 74%]
+tests/test_provider.py::test_no_retry_or_body_leak_on_auth_error FAILED  [ 75%]
+tests/test_provider.py::test_offline_provider_is_deterministic_and_grounded PASSED [ 77%]
+tests/test_report.py::test_report_escapes_model_content_and_is_accessible FAILED [ 78%]
+tests/test_rubric_scoring.py::test_client_rubric_is_complete PASSED      [ 79%]
+tests/test_rubric_scoring.py::test_score_extremes PASSED                 [ 80%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[0-Not ready-False] PASSED [ 81%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[39.9-Not ready-True] PASSED [ 83%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[40-Needs significant validation-False] PASSED [ 84%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[59.9-Needs significant validation-True] PASSED [ 85%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[60-Potential consideration-False] PASSED [ 86%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[74.9-Potential consideration-True] PASSED [ 87%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[75-Strong candidate-False] PASSED [ 89%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[89.9-Strong candidate-True] PASSED [ 90%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[90-Due diligence recommended-False] PASSED [ 91%]
+tests/test_rubric_scoring.py::test_client_band_boundaries[100-Due diligence recommended-False] PASSED [ 92%]
+tests/test_rubric_scoring.py::test_duplicate_or_missing_scores_are_rejected PASSED [ 93%]
+tests/test_sample_corpus.py::test_reproducible_disjoint_in_scope_sampling PASSED [ 95%]
+tests/test_workbook.py::test_startup_model_aliases_and_lineage FAILED    [ 96%]
+tests/test_workbook.py::test_three_model_families_are_classified FAILED  [ 97%]
+tests/test_workbook.py::test_corrupt_or_wrong_magic_is_controlled PASSED [ 98%]
+tests/test_workbook.py::test_path_traversal_zip_is_rejected PASSED       [100%]
+
+=================================== FAILURES ===================================
+___________________ test_health_ready_and_evaluate_contract ____________________
+
+    def test_health_ready_and_evaluate_contract():
+        with client() as c:
+            assert c.get("/health").json()["status"] == "ok"
+            assert c.get("/ready").status_code == 200
+            response = c.post(
+                "/api/evaluate",
+                data={"application_id": "app-1"},
+                files={"pitch_deck": ("deck.pdf", pdf(), "application/pdf")},
+                headers={"X-Request-ID": "request-123"},
+            )
+>       assert response.status_code == 200
+E       assert 422 == 200
+E        +  where 422 = <Response [422 Unprocessable Entity]>.status_code
+
+tests/test_api.py:46: AssertionError
+______________________ test_comparison_and_rubric_warning ______________________
+
+    def test_comparison_and_rubric_warning():
+        result = compare_assessments(
+            ComparisonRequest(
+                previous=summary("a", 4, "old", ["team"]), current=summary("a", 6, "new", ["market"])
+            )
+        )
+        assert result.comparable is False
+        assert result.mamak_score_delta == Decimal("20")
+>       assert result.resolved_missing_information == ["team"]
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_comparison.py:81: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = ComparisonResult(comparable=False, application_id='a', mamak_score_delta='20', previous_score='40', current_score='60'...ls': {'previous': 4, 'current': 6, 'delta': 2}}, warnings=['Rubric versions differ between assessments (3.0 vs 3.0).'])
+item = 'resolved_missing_information'
+
+    def __getattr__(self, item: str) -> Any:
+        private_attributes = object.__getattribute__(self, '__private_attributes__')
+        if item in private_attributes:
+            attribute = private_attributes[item]
+            if hasattr(attribute, '__get__'):
+                return attribute.__get__(self, type(self))  # type: ignore
+    
+            try:
+                # Note: self.__pydantic_private__ cannot be None if self.__private_attributes__ has items
+                return self.__pydantic_private__[item]  # type: ignore
+            except KeyError as exc:
+                raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}') from exc
+        else:
+            # `__pydantic_extra__` can fail to be set if the model is not yet fully initialized.
+            # See `BaseModel.__repr_args__` for more details
+            try:
+                pydantic_extra = object.__getattribute__(self, '__pydantic_extra__')
+            except AttributeError:
+                pydantic_extra = None
+    
+            if pydantic_extra and item in pydantic_extra:
+                return pydantic_extra[item]
+            else:
+                if hasattr(self.__class__, item):
+                    return super().__getattribute__(item)  # Raises AttributeError if appropriate
+                else:
+                    # this is the current error
+>                   raise AttributeError(f'{type(self).__name__!r} object has no attribute {item!r}')
+E                   AttributeError: 'ComparisonResult' object has no attribute 'resolved_missing_information'
+
+/opt/homebrew/lib/python3.14/site-packages/pydantic/main.py:1042: AttributeError
+___________________________ test_all_client_formulas ___________________________
+
+    def test_all_client_formulas():
+>       result = calculate_financials(full())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_finance.py:26: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+inputs = {'customers': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), 'arpu': Fin...'operating_expenses': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), ...}
+source_file = None, detected_model_family = None
+
+    def calculate_financials(
+        inputs: Union[Dict[str, Any], FinancialInput],
+        source_file: Optional[SourceFile] = None,
+        detected_model_family: Optional[str] = None,
+    ) -> FinancialResult:
+        if isinstance(inputs, FinancialInput):
+            data = inputs.metrics or {}
+        elif isinstance(inputs, dict):
+            data = inputs
+        else:
+            data = {}
+    
+        metrics: Dict[str, MetricValue] = {}
+        warnings: List[str] = []
+        normalized_inputs: Dict[str, Any] = {}
+    
+        def get_val(*keys: str) -> Optional[Decimal]:
+            for k in keys:
+                if k in data:
+                    raw = data[k]
+                    d = _to_decimal(raw)
+                    if d is not None:
+                        src = getattr(raw, "source", None) or (raw.get("source") if isinstance(raw, dict) else None)
+                        stored = d
+                        if keys[0] == "gross_margin" and d > Decimal("1.0"):
+                            stored = d / Decimal("100")
+                        normalized_inputs[keys[0]] = MetricValue(value=stored, metric_value=stored, source=src)
+                        return d
+            return None
+    
+        customers = get_val("customers", "paying_customers", "customer_count")
+        arpu = get_val("arpu", "average_revenue_per_customer", "price_per_user")
+        revenue = get_val("revenue", "arr", "mrr_annualized", "monthly_revenue", "revenue_forecast")
+        gross_margin_pct = get_val("gross_margin", "gross_margin_pct", "gross_margin_percentage")
+        cogs = get_val("cogs", "cost_of_goods_sold")
+        gross_profit = get_val("gross_profit")
+        opex = get_val("operating_expenses", "opex", "monthly_expenses")
+        cash_balance = get_val("cash_balance", "cash", "bank_balance")
+    
+        # 1. Revenue
+        if revenue is None and customers is not None and arpu is not None:
+            revenue = customers * arpu
+            metrics["revenue"] = MetricValue(
+                value=revenue,
+                metric_value=revenue,
+                source_formula="customers * arpu",
+                inputs={"customers": customers, "arpu": arpu},
+            )
+        elif revenue is not None:
+            metrics["revenue"] = MetricValue(value=revenue, metric_value=revenue)
+        else:
+            metrics["revenue"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 2. Gross Margin & Profit
+        if gross_margin_pct is not None:
+            if gross_margin_pct > Decimal("100") or gross_margin_pct < Decimal("0"):
+                warnings.append("Gross margin exceeds 100%.")
+                metrics["gross_profit"] = MetricValue(
+                    unavailable_reason="INVALID_INPUT",
+                    inputs={"gross_margin_pct": gross_margin_pct},
+                )
+            else:
+                pct_frac = gross_margin_pct / Decimal("100") if gross_margin_pct > Decimal("1.0") else gross_margin_pct
+                rev_base = revenue if revenue is not None else Decimal("0")
+                gross_profit = rev_base * pct_frac
+                metrics["gross_profit"] = MetricValue(
+                    value=gross_profit,
+                    metric_value=gross_profit,
+                    source_formula="revenue * gross_margin_pct",
+                    inputs={"revenue": rev_base, "gross_margin_pct": gross_margin_pct},
+                )
+        elif gross_profit is None and revenue is not None and cogs is not None:
+            gross_profit = revenue - cogs
+            metrics["gross_profit"] = MetricValue(
+                value=gross_profit,
+                metric_value=gross_profit,
+                source_formula="revenue - cogs",
+                inputs={"revenue": revenue, "cogs": cogs},
+            )
+        elif gross_profit is not None:
+            metrics["gross_profit"] = MetricValue(value=gross_profit, metric_value=gross_profit)
+        else:
+            metrics["gross_profit"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 3. Net Burn
+        net_burn = None
+        if opex is not None:
+            gp_val = metrics["gross_profit"].value if metrics["gross_profit"].value is not None else Decimal("0")
+            net_burn = opex - gp_val
+            metrics["net_burn"] = MetricValue(
+                value=net_burn,
+                metric_value=net_burn,
+                source_formula="operating_expenses - gross_profit",
+                inputs={"operating_expenses": opex, "gross_profit": gp_val},
+            )
+        else:
+            metrics["net_burn"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 4. Runway
+        if cash_balance is not None and net_burn is not None:
+            if net_burn <= Decimal("0"):
+                metrics["runway"] = MetricValue(
+                    unavailable_reason="NON_POSITIVE_BURN",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+            else:
+                runway = cash_balance / net_burn
+                metrics["runway"] = MetricValue(
+                    value=round(runway, 1),
+                    metric_value=round(runway, 1),
+                    source_formula="cash_balance / net_burn",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+        else:
+            metrics["runway"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        has_model_flag = any(m.value is not None for m in metrics.values()) or (
+            isinstance(inputs, FinancialInput) and inputs.has_model
+        )
+    
+>       return FinancialResult(
+            has_model=has_model_flag,
+            provided=has_model_flag,
+            model_family=detected_model_family or "none",
+            detected_model_family=detected_model_family or "none",
+            inputs=normalized_inputs,
+            metrics=metrics,
+            warnings=warnings,
+            source_file=source_file,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 4 validation errors for FinancialResult
+E       metrics.revenue
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.gross_profit
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.net_burn
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.runway
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+
+src/mamakscore/finance.py:158: ValidationError
+____________________ test_percent_margin_and_missing_inputs ____________________
+
+    def test_percent_margin_and_missing_inputs():
+>       assert calculate_financials(full("60")).metrics["gross_profit"].value == Decimal("3000")
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_finance.py:36: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+inputs = {'customers': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), 'arpu': Fin...'operating_expenses': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), ...}
+source_file = None, detected_model_family = None
+
+    def calculate_financials(
+        inputs: Union[Dict[str, Any], FinancialInput],
+        source_file: Optional[SourceFile] = None,
+        detected_model_family: Optional[str] = None,
+    ) -> FinancialResult:
+        if isinstance(inputs, FinancialInput):
+            data = inputs.metrics or {}
+        elif isinstance(inputs, dict):
+            data = inputs
+        else:
+            data = {}
+    
+        metrics: Dict[str, MetricValue] = {}
+        warnings: List[str] = []
+        normalized_inputs: Dict[str, Any] = {}
+    
+        def get_val(*keys: str) -> Optional[Decimal]:
+            for k in keys:
+                if k in data:
+                    raw = data[k]
+                    d = _to_decimal(raw)
+                    if d is not None:
+                        src = getattr(raw, "source", None) or (raw.get("source") if isinstance(raw, dict) else None)
+                        stored = d
+                        if keys[0] == "gross_margin" and d > Decimal("1.0"):
+                            stored = d / Decimal("100")
+                        normalized_inputs[keys[0]] = MetricValue(value=stored, metric_value=stored, source=src)
+                        return d
+            return None
+    
+        customers = get_val("customers", "paying_customers", "customer_count")
+        arpu = get_val("arpu", "average_revenue_per_customer", "price_per_user")
+        revenue = get_val("revenue", "arr", "mrr_annualized", "monthly_revenue", "revenue_forecast")
+        gross_margin_pct = get_val("gross_margin", "gross_margin_pct", "gross_margin_percentage")
+        cogs = get_val("cogs", "cost_of_goods_sold")
+        gross_profit = get_val("gross_profit")
+        opex = get_val("operating_expenses", "opex", "monthly_expenses")
+        cash_balance = get_val("cash_balance", "cash", "bank_balance")
+    
+        # 1. Revenue
+        if revenue is None and customers is not None and arpu is not None:
+            revenue = customers * arpu
+            metrics["revenue"] = MetricValue(
+                value=revenue,
+                metric_value=revenue,
+                source_formula="customers * arpu",
+                inputs={"customers": customers, "arpu": arpu},
+            )
+        elif revenue is not None:
+            metrics["revenue"] = MetricValue(value=revenue, metric_value=revenue)
+        else:
+            metrics["revenue"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 2. Gross Margin & Profit
+        if gross_margin_pct is not None:
+            if gross_margin_pct > Decimal("100") or gross_margin_pct < Decimal("0"):
+                warnings.append("Gross margin exceeds 100%.")
+                metrics["gross_profit"] = MetricValue(
+                    unavailable_reason="INVALID_INPUT",
+                    inputs={"gross_margin_pct": gross_margin_pct},
+                )
+            else:
+                pct_frac = gross_margin_pct / Decimal("100") if gross_margin_pct > Decimal("1.0") else gross_margin_pct
+                rev_base = revenue if revenue is not None else Decimal("0")
+                gross_profit = rev_base * pct_frac
+                metrics["gross_profit"] = MetricValue(
+                    value=gross_profit,
+                    metric_value=gross_profit,
+                    source_formula="revenue * gross_margin_pct",
+                    inputs={"revenue": rev_base, "gross_margin_pct": gross_margin_pct},
+                )
+        elif gross_profit is None and revenue is not None and cogs is not None:
+            gross_profit = revenue - cogs
+            metrics["gross_profit"] = MetricValue(
+                value=gross_profit,
+                metric_value=gross_profit,
+                source_formula="revenue - cogs",
+                inputs={"revenue": revenue, "cogs": cogs},
+            )
+        elif gross_profit is not None:
+            metrics["gross_profit"] = MetricValue(value=gross_profit, metric_value=gross_profit)
+        else:
+            metrics["gross_profit"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 3. Net Burn
+        net_burn = None
+        if opex is not None:
+            gp_val = metrics["gross_profit"].value if metrics["gross_profit"].value is not None else Decimal("0")
+            net_burn = opex - gp_val
+            metrics["net_burn"] = MetricValue(
+                value=net_burn,
+                metric_value=net_burn,
+                source_formula="operating_expenses - gross_profit",
+                inputs={"operating_expenses": opex, "gross_profit": gp_val},
+            )
+        else:
+            metrics["net_burn"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 4. Runway
+        if cash_balance is not None and net_burn is not None:
+            if net_burn <= Decimal("0"):
+                metrics["runway"] = MetricValue(
+                    unavailable_reason="NON_POSITIVE_BURN",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+            else:
+                runway = cash_balance / net_burn
+                metrics["runway"] = MetricValue(
+                    value=round(runway, 1),
+                    metric_value=round(runway, 1),
+                    source_formula="cash_balance / net_burn",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+        else:
+            metrics["runway"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        has_model_flag = any(m.value is not None for m in metrics.values()) or (
+            isinstance(inputs, FinancialInput) and inputs.has_model
+        )
+    
+>       return FinancialResult(
+            has_model=has_model_flag,
+            provided=has_model_flag,
+            model_family=detected_model_family or "none",
+            detected_model_family=detected_model_family or "none",
+            inputs=normalized_inputs,
+            metrics=metrics,
+            warnings=warnings,
+            source_file=source_file,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 4 validation errors for FinancialResult
+E       metrics.revenue
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.gross_profit
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.net_burn
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.runway
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+
+src/mamakscore/finance.py:158: ValidationError
+_________ test_non_positive_burn_and_zero_denominator_are_unavailable __________
+
+    def test_non_positive_burn_and_zero_denominator_are_unavailable():
+        values = full()
+        values["operating_expenses"] = inp("operating_expenses", "2000")
+>       assert calculate_financials(values).metrics["runway"].unavailable_reason == "NON_POSITIVE_BURN"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_finance.py:45: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+inputs = {'customers': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), 'arpu': Fin...'operating_expenses': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), ...}
+source_file = None, detected_model_family = None
+
+    def calculate_financials(
+        inputs: Union[Dict[str, Any], FinancialInput],
+        source_file: Optional[SourceFile] = None,
+        detected_model_family: Optional[str] = None,
+    ) -> FinancialResult:
+        if isinstance(inputs, FinancialInput):
+            data = inputs.metrics or {}
+        elif isinstance(inputs, dict):
+            data = inputs
+        else:
+            data = {}
+    
+        metrics: Dict[str, MetricValue] = {}
+        warnings: List[str] = []
+        normalized_inputs: Dict[str, Any] = {}
+    
+        def get_val(*keys: str) -> Optional[Decimal]:
+            for k in keys:
+                if k in data:
+                    raw = data[k]
+                    d = _to_decimal(raw)
+                    if d is not None:
+                        src = getattr(raw, "source", None) or (raw.get("source") if isinstance(raw, dict) else None)
+                        stored = d
+                        if keys[0] == "gross_margin" and d > Decimal("1.0"):
+                            stored = d / Decimal("100")
+                        normalized_inputs[keys[0]] = MetricValue(value=stored, metric_value=stored, source=src)
+                        return d
+            return None
+    
+        customers = get_val("customers", "paying_customers", "customer_count")
+        arpu = get_val("arpu", "average_revenue_per_customer", "price_per_user")
+        revenue = get_val("revenue", "arr", "mrr_annualized", "monthly_revenue", "revenue_forecast")
+        gross_margin_pct = get_val("gross_margin", "gross_margin_pct", "gross_margin_percentage")
+        cogs = get_val("cogs", "cost_of_goods_sold")
+        gross_profit = get_val("gross_profit")
+        opex = get_val("operating_expenses", "opex", "monthly_expenses")
+        cash_balance = get_val("cash_balance", "cash", "bank_balance")
+    
+        # 1. Revenue
+        if revenue is None and customers is not None and arpu is not None:
+            revenue = customers * arpu
+            metrics["revenue"] = MetricValue(
+                value=revenue,
+                metric_value=revenue,
+                source_formula="customers * arpu",
+                inputs={"customers": customers, "arpu": arpu},
+            )
+        elif revenue is not None:
+            metrics["revenue"] = MetricValue(value=revenue, metric_value=revenue)
+        else:
+            metrics["revenue"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 2. Gross Margin & Profit
+        if gross_margin_pct is not None:
+            if gross_margin_pct > Decimal("100") or gross_margin_pct < Decimal("0"):
+                warnings.append("Gross margin exceeds 100%.")
+                metrics["gross_profit"] = MetricValue(
+                    unavailable_reason="INVALID_INPUT",
+                    inputs={"gross_margin_pct": gross_margin_pct},
+                )
+            else:
+                pct_frac = gross_margin_pct / Decimal("100") if gross_margin_pct > Decimal("1.0") else gross_margin_pct
+                rev_base = revenue if revenue is not None else Decimal("0")
+                gross_profit = rev_base * pct_frac
+                metrics["gross_profit"] = MetricValue(
+                    value=gross_profit,
+                    metric_value=gross_profit,
+                    source_formula="revenue * gross_margin_pct",
+                    inputs={"revenue": rev_base, "gross_margin_pct": gross_margin_pct},
+                )
+        elif gross_profit is None and revenue is not None and cogs is not None:
+            gross_profit = revenue - cogs
+            metrics["gross_profit"] = MetricValue(
+                value=gross_profit,
+                metric_value=gross_profit,
+                source_formula="revenue - cogs",
+                inputs={"revenue": revenue, "cogs": cogs},
+            )
+        elif gross_profit is not None:
+            metrics["gross_profit"] = MetricValue(value=gross_profit, metric_value=gross_profit)
+        else:
+            metrics["gross_profit"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 3. Net Burn
+        net_burn = None
+        if opex is not None:
+            gp_val = metrics["gross_profit"].value if metrics["gross_profit"].value is not None else Decimal("0")
+            net_burn = opex - gp_val
+            metrics["net_burn"] = MetricValue(
+                value=net_burn,
+                metric_value=net_burn,
+                source_formula="operating_expenses - gross_profit",
+                inputs={"operating_expenses": opex, "gross_profit": gp_val},
+            )
+        else:
+            metrics["net_burn"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 4. Runway
+        if cash_balance is not None and net_burn is not None:
+            if net_burn <= Decimal("0"):
+                metrics["runway"] = MetricValue(
+                    unavailable_reason="NON_POSITIVE_BURN",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+            else:
+                runway = cash_balance / net_burn
+                metrics["runway"] = MetricValue(
+                    value=round(runway, 1),
+                    metric_value=round(runway, 1),
+                    source_formula="cash_balance / net_burn",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+        else:
+            metrics["runway"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        has_model_flag = any(m.value is not None for m in metrics.values()) or (
+            isinstance(inputs, FinancialInput) and inputs.has_model
+        )
+    
+>       return FinancialResult(
+            has_model=has_model_flag,
+            provided=has_model_flag,
+            model_family=detected_model_family or "none",
+            detected_model_family=detected_model_family or "none",
+            inputs=normalized_inputs,
+            metrics=metrics,
+            warnings=warnings,
+            source_file=source_file,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 4 validation errors for FinancialResult
+E       metrics.revenue
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.gross_profit
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.net_burn
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.runway
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+
+src/mamakscore/finance.py:158: ValidationError
+_________________ test_invalid_margin_is_reported_not_guessed __________________
+
+    def test_invalid_margin_is_reported_not_guessed():
+>       result = calculate_financials(full("140"))
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_finance.py:54: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+inputs = {'customers': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), 'arpu': Fin...'operating_expenses': FinancialInput(has_model=False, metrics={}, assumptions=[], amount=None, metric_value=None), ...}
+source_file = None, detected_model_family = None
+
+    def calculate_financials(
+        inputs: Union[Dict[str, Any], FinancialInput],
+        source_file: Optional[SourceFile] = None,
+        detected_model_family: Optional[str] = None,
+    ) -> FinancialResult:
+        if isinstance(inputs, FinancialInput):
+            data = inputs.metrics or {}
+        elif isinstance(inputs, dict):
+            data = inputs
+        else:
+            data = {}
+    
+        metrics: Dict[str, MetricValue] = {}
+        warnings: List[str] = []
+        normalized_inputs: Dict[str, Any] = {}
+    
+        def get_val(*keys: str) -> Optional[Decimal]:
+            for k in keys:
+                if k in data:
+                    raw = data[k]
+                    d = _to_decimal(raw)
+                    if d is not None:
+                        src = getattr(raw, "source", None) or (raw.get("source") if isinstance(raw, dict) else None)
+                        stored = d
+                        if keys[0] == "gross_margin" and d > Decimal("1.0"):
+                            stored = d / Decimal("100")
+                        normalized_inputs[keys[0]] = MetricValue(value=stored, metric_value=stored, source=src)
+                        return d
+            return None
+    
+        customers = get_val("customers", "paying_customers", "customer_count")
+        arpu = get_val("arpu", "average_revenue_per_customer", "price_per_user")
+        revenue = get_val("revenue", "arr", "mrr_annualized", "monthly_revenue", "revenue_forecast")
+        gross_margin_pct = get_val("gross_margin", "gross_margin_pct", "gross_margin_percentage")
+        cogs = get_val("cogs", "cost_of_goods_sold")
+        gross_profit = get_val("gross_profit")
+        opex = get_val("operating_expenses", "opex", "monthly_expenses")
+        cash_balance = get_val("cash_balance", "cash", "bank_balance")
+    
+        # 1. Revenue
+        if revenue is None and customers is not None and arpu is not None:
+            revenue = customers * arpu
+            metrics["revenue"] = MetricValue(
+                value=revenue,
+                metric_value=revenue,
+                source_formula="customers * arpu",
+                inputs={"customers": customers, "arpu": arpu},
+            )
+        elif revenue is not None:
+            metrics["revenue"] = MetricValue(value=revenue, metric_value=revenue)
+        else:
+            metrics["revenue"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 2. Gross Margin & Profit
+        if gross_margin_pct is not None:
+            if gross_margin_pct > Decimal("100") or gross_margin_pct < Decimal("0"):
+                warnings.append("Gross margin exceeds 100%.")
+                metrics["gross_profit"] = MetricValue(
+                    unavailable_reason="INVALID_INPUT",
+                    inputs={"gross_margin_pct": gross_margin_pct},
+                )
+            else:
+                pct_frac = gross_margin_pct / Decimal("100") if gross_margin_pct > Decimal("1.0") else gross_margin_pct
+                rev_base = revenue if revenue is not None else Decimal("0")
+                gross_profit = rev_base * pct_frac
+                metrics["gross_profit"] = MetricValue(
+                    value=gross_profit,
+                    metric_value=gross_profit,
+                    source_formula="revenue * gross_margin_pct",
+                    inputs={"revenue": rev_base, "gross_margin_pct": gross_margin_pct},
+                )
+        elif gross_profit is None and revenue is not None and cogs is not None:
+            gross_profit = revenue - cogs
+            metrics["gross_profit"] = MetricValue(
+                value=gross_profit,
+                metric_value=gross_profit,
+                source_formula="revenue - cogs",
+                inputs={"revenue": revenue, "cogs": cogs},
+            )
+        elif gross_profit is not None:
+            metrics["gross_profit"] = MetricValue(value=gross_profit, metric_value=gross_profit)
+        else:
+            metrics["gross_profit"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 3. Net Burn
+        net_burn = None
+        if opex is not None:
+            gp_val = metrics["gross_profit"].value if metrics["gross_profit"].value is not None else Decimal("0")
+            net_burn = opex - gp_val
+            metrics["net_burn"] = MetricValue(
+                value=net_burn,
+                metric_value=net_burn,
+                source_formula="operating_expenses - gross_profit",
+                inputs={"operating_expenses": opex, "gross_profit": gp_val},
+            )
+        else:
+            metrics["net_burn"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        # 4. Runway
+        if cash_balance is not None and net_burn is not None:
+            if net_burn <= Decimal("0"):
+                metrics["runway"] = MetricValue(
+                    unavailable_reason="NON_POSITIVE_BURN",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+            else:
+                runway = cash_balance / net_burn
+                metrics["runway"] = MetricValue(
+                    value=round(runway, 1),
+                    metric_value=round(runway, 1),
+                    source_formula="cash_balance / net_burn",
+                    inputs={"cash_balance": cash_balance, "net_burn": net_burn},
+                )
+        else:
+            metrics["runway"] = MetricValue(unavailable_reason="MISSING_INPUTS")
+    
+        has_model_flag = any(m.value is not None for m in metrics.values()) or (
+            isinstance(inputs, FinancialInput) and inputs.has_model
+        )
+    
+>       return FinancialResult(
+            has_model=has_model_flag,
+            provided=has_model_flag,
+            model_family=detected_model_family or "none",
+            detected_model_family=detected_model_family or "none",
+            inputs=normalized_inputs,
+            metrics=metrics,
+            warnings=warnings,
+            source_file=source_file,
+        )
+E       pydantic_core._pydantic_core.ValidationError: 4 validation errors for FinancialResult
+E       metrics.revenue
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.gross_profit
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.net_burn
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+E       metrics.runway
+E         Input should be a valid dictionary or instance of MetricValue [type=model_type, input_value=MetricValue(value=None, m... source=None, inputs={}), input_type=MetricValue]
+E           For further information visit https://errors.pydantic.dev/2.13/v/model_type
+
+src/mamakscore/finance.py:158: ValidationError
+_______________ test_deck_only_pipeline_is_complete_and_grounded _______________
+
+tmp_path = PosixPath('/private/var/folders/6k/6tws1y0d2016k4zmty1qshpc0000gn/T/pytest-of-mike/pytest-1/test_deck_only_pipeline_is_com0')
+
+    def test_deck_only_pipeline_is_complete_and_grounded(tmp_path):
+        text = "Problem: Clinics lose 20 hours weekly. We interviewed 120 practice managers and built a working prototype."
+        pipe = EvaluationPipeline(
+            R,
+            OfflineProvider(R, "deck.pdf"),
+            cache=ReplayCache(tmp_path / "c.sqlite", enabled=False),
+            expose_confidence=True,
+        )
+>       result = pipe.evaluate("app-1", pdf(text), "deck.pdf")
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:32: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/mamakscore/pipeline.py:137: in evaluate
+    validated_draft = validate_assessment_draft(draft, self.rubric)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+draft = AssessmentDraft(criterion_scores=[CriterionScore(criterion_id='problem', score=4, justification='Substantiated analysi...rsion rates for Traction?', 'What are the direct conversion rates for Competitive Advantage?'], missing_information=[])
+rubric = RubricDefinition(version='3.0', criteria=[RubricCriterion(id='problem', name='Problem / Pain Point', weight=10.0, desc... is being done about it.'})], digest='7940d99cc74e9fb2bc51794f883f4f654c0ec9cbeeb7a75ddb9413910b58ea21', scale=[0, 10])
+
+    def validate_assessment_draft(
+        draft: AssessmentDraft,
+        rubric: RubricDefinition,
+    ) -> AssessmentDraft:
+        """Validates an AssessmentDraft against the rubric constraints:
+        - Must contain exactly the 9 rubric criteria (no duplicates, no omissions)
+        - Empty evidence quote is only valid if score == 0 with an exact rationale
+        - Investor questions count must be between 5 and 10 with unique strings
+        - Improvement actions must target known rubric criteria and set target > current
+        - Red flags and actions must only reference known criteria
+        """
+        rubric_ids: Set[str] = {c.id for c in rubric.criteria}
+        score_map = {}
+    
+        # 1. Criteria count & uniqueness check
+        for item in draft.criterion_scores:
+            if item.criterion_id not in rubric_ids:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Unknown criterion_id '{item.criterion_id}' in assessment draft.",
+                    field="criterion_scores",
+                )
+            if item.criterion_id in score_map:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Duplicate criterion_id '{item.criterion_id}' found in assessment draft.",
+                    field="criterion_scores",
+                )
+            score_map[item.criterion_id] = item.score
+    
+        if set(score_map.keys()) != rubric_ids:
+            missing = rubric_ids - set(score_map.keys())
+            raise ServiceError(
+                ErrorCode.INVALID_MODEL_OUTPUT,
+                f"Assessment draft is missing required criteria: {missing}",
+                field="criterion_scores",
+            )
+    
+        # 2. Empty evidence quote rules
+        for item in draft.criterion_scores:
+            if not item.evidence_quote.strip() and item.score != 0:
+>               raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Criterion '{item.criterion_id}' has score {item.score} but empty evidence.",
+                    field="criterion_scores",
+                )
+E               mamakscore.errors.ServiceError: Criterion 'problem' has score 4 but empty evidence.
+
+src/mamakscore/intelligence.py:50: ServiceError
+_______________ test_cache_replays_without_second_provider_call ________________
+
+tmp_path = PosixPath('/private/var/folders/6k/6tws1y0d2016k4zmty1qshpc0000gn/T/pytest-of-mike/pytest-1/test_cache_replays_without_sec0')
+
+    def test_cache_replays_without_second_provider_call(tmp_path):
+        class Counting:
+            model_id = "counting"
+    
+            def __init__(self):
+                self.calls = 0
+                self.inner = OfflineProvider(R, "deck.pdf")
+    
+            def assess(self, request):
+                self.calls += 1
+                r = self.inner.assess(request)
+                return ProviderResponse(draft=r.draft, provider="offline", model_id=self.model_id)
+    
+        p = Counting()
+        pipe = EvaluationPipeline(R, p, cache=ReplayCache(tmp_path / "c.sqlite", enabled=True))
+        data = pdf(
+            "Substantial source evidence that is long enough to pass extraction and grounding checks."
+        )
+>       assert pipe.evaluate("a", data, "deck.pdf", use_cache=True).provenance.from_cache is False
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_pipeline.py:57: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+src/mamakscore/pipeline.py:137: in evaluate
+    validated_draft = validate_assessment_draft(draft, self.rubric)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+draft = AssessmentDraft(criterion_scores=[CriterionScore(criterion_id='problem', score=4, justification='Substantiated analysi...rsion rates for Traction?', 'What are the direct conversion rates for Competitive Advantage?'], missing_information=[])
+rubric = RubricDefinition(version='3.0', criteria=[RubricCriterion(id='problem', name='Problem / Pain Point', weight=10.0, desc... is being done about it.'})], digest='7940d99cc74e9fb2bc51794f883f4f654c0ec9cbeeb7a75ddb9413910b58ea21', scale=[0, 10])
+
+    def validate_assessment_draft(
+        draft: AssessmentDraft,
+        rubric: RubricDefinition,
+    ) -> AssessmentDraft:
+        """Validates an AssessmentDraft against the rubric constraints:
+        - Must contain exactly the 9 rubric criteria (no duplicates, no omissions)
+        - Empty evidence quote is only valid if score == 0 with an exact rationale
+        - Investor questions count must be between 5 and 10 with unique strings
+        - Improvement actions must target known rubric criteria and set target > current
+        - Red flags and actions must only reference known criteria
+        """
+        rubric_ids: Set[str] = {c.id for c in rubric.criteria}
+        score_map = {}
+    
+        # 1. Criteria count & uniqueness check
+        for item in draft.criterion_scores:
+            if item.criterion_id not in rubric_ids:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Unknown criterion_id '{item.criterion_id}' in assessment draft.",
+                    field="criterion_scores",
+                )
+            if item.criterion_id in score_map:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Duplicate criterion_id '{item.criterion_id}' found in assessment draft.",
+                    field="criterion_scores",
+                )
+            score_map[item.criterion_id] = item.score
+    
+        if set(score_map.keys()) != rubric_ids:
+            missing = rubric_ids - set(score_map.keys())
+            raise ServiceError(
+                ErrorCode.INVALID_MODEL_OUTPUT,
+                f"Assessment draft is missing required criteria: {missing}",
+                field="criterion_scores",
+            )
+    
+        # 2. Empty evidence quote rules
+        for item in draft.criterion_scores:
+            if not item.evidence_quote.strip() and item.score != 0:
+>               raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Criterion '{item.criterion_id}' has score {item.score} but empty evidence.",
+                    field="criterion_scores",
+                )
+E               mamakscore.errors.ServiceError: Criterion 'problem' has score 4 but empty evidence.
+
+src/mamakscore/intelligence.py:50: ServiceError
+___________________ test_ungrounded_provider_fails_whole_run ___________________
+
+tmp_path = PosixPath('/private/var/folders/6k/6tws1y0d2016k4zmty1qshpc0000gn/T/pytest-of-mike/pytest-1/test_ungrounded_provider_fails0')
+
+    def test_ungrounded_provider_fails_whole_run(tmp_path):
+        class Bad:
+            model_id = "bad"
+    
+            def assess(self, request):
+                result = OfflineProvider(R, "deck.pdf").assess(request)
+                bad = result.draft.criterion_scores
+                bad[0] = bad[0].model_copy(update={"evidence_quote": "invented 999 customers"})
+                return ProviderResponse(
+                    draft=result.draft.model_copy(update={"criterion_scores": bad}),
+                    provider="bad",
+                    model_id="bad",
+                )
+    
+        pipe = EvaluationPipeline(R, Bad(), cache=ReplayCache(tmp_path / "c.sqlite", enabled=False))
+        with pytest.raises(ServiceError) as exc:
+            pipe.evaluate(
+                "a", pdf("Actual evidence line with enough characters for extraction."), "deck.pdf"
+            )
+>       assert exc.value.code == "UNGROUNDED_EVIDENCE"
+E       AssertionError: assert <ErrorCode.IN...MODEL_OUTPUT'> == 'UNGROUNDED_EVIDENCE'
+E         
+E         - UNGROUNDED_EVIDENCE
+E         + INVALID_MODEL_OUTPUT
+
+tests/test_pipeline.py:81: AssertionError
+_______________ test_hosted_provider_parses_structured_response ________________
+
+    def test_hosted_provider_parses_structured_response():
+        def handler(req):
+            assert req.headers["authorization"] == "Bearer secret"
+            return httpx.Response(
+                200,
+                json={
+                    "choices": [{"message": {"content": json.dumps(payload())}}],
+                    "usage": {"prompt_tokens": 100, "completion_tokens": 20},
+                },
+            )
+    
+        client = httpx.Client(transport=httpx.MockTransport(handler))
+        p = OpenAICompatibleProvider(
+            "https://example.test/v1",
+            "secret",
+            "open-model",
+            http_client=client,
+            sleeper=lambda _: None,
+        )
+>       result = p.assess(request())
+                 ^^^^^^^^^^^^^^^^^^^
+
+tests/test_provider.py:74: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mamakscore.provider.OpenAICompatibleProvider object at 0x11499ef90>
+request = ProviderRequest(system_prompt='system', user_prompt='<untrusted_submission>Evidence line long enough</untrusted_submis...', 'type': 'array'}}, 'required': ['criterion_scores'], 'title': 'AssessmentDraft', 'type': 'object'}, temperature=0.0)
+
+    def assess(self, request: ProviderRequest) -> ProviderResponse:
+        user_text = request.user_prompt or request.user_content or ""
+        body = user_text
+    
+        if "<untrusted_submission>" in user_text:
+            body = user_text.split("<untrusted_submission>")[1].split("</untrusted_submission>")[0].strip()
+        elif "=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===" in user_text:
+            body = user_text.split("=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[1].split("=== END UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[0].strip()
+    
+        quote = ""
+        for line in body.splitlines():
+            line_str = line.strip()
+            if line_str.startswith("[Page") or not line_str:
+                continue
+            if len(line_str) >= 20:
+                quote = line_str[:60].strip()
+                break
+    
+        if not quote:
+            # Fallback to any non-empty slice of text
+            cleaned_body = " ".join(body.split())
+            quote = cleaned_body[:40].strip() if len(cleaned_body) >= 10 else "Verified evidence"
+    
+        scores: List[CriterionScore] = []
+>       for c in self.rubric.criteria:
+                 ^^^^^^^^^^^
+E       AttributeError: 'OpenAICompatibleProvider' object has no attribute 'rubric'
+
+src/mamakscore/provider.py:165: AttributeError
+____________________________ test_retry_once_on_429 ____________________________
+
+    def test_retry_once_on_429():
+        calls = 0
+    
+        def handler(req):
+            nonlocal calls
+            calls += 1
+            if calls == 1:
+                return httpx.Response(429, headers={"Retry-After": "0"})
+            return httpx.Response(
+                200, json={"choices": [{"message": {"content": json.dumps(payload())}}]}
+            )
+    
+        p = OpenAICompatibleProvider(
+            "https://example.test/v1",
+            "secret",
+            "model",
+            http_client=httpx.Client(transport=httpx.MockTransport(handler)),
+            sleeper=lambda _: None,
+        )
+>       p.assess(request())
+
+tests/test_provider.py:97: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mamakscore.provider.OpenAICompatibleProvider object at 0x114a03750>
+request = ProviderRequest(system_prompt='system', user_prompt='<untrusted_submission>Evidence line long enough</untrusted_submis...', 'type': 'array'}}, 'required': ['criterion_scores'], 'title': 'AssessmentDraft', 'type': 'object'}, temperature=0.0)
+
+    def assess(self, request: ProviderRequest) -> ProviderResponse:
+        user_text = request.user_prompt or request.user_content or ""
+        body = user_text
+    
+        if "<untrusted_submission>" in user_text:
+            body = user_text.split("<untrusted_submission>")[1].split("</untrusted_submission>")[0].strip()
+        elif "=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===" in user_text:
+            body = user_text.split("=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[1].split("=== END UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[0].strip()
+    
+        quote = ""
+        for line in body.splitlines():
+            line_str = line.strip()
+            if line_str.startswith("[Page") or not line_str:
+                continue
+            if len(line_str) >= 20:
+                quote = line_str[:60].strip()
+                break
+    
+        if not quote:
+            # Fallback to any non-empty slice of text
+            cleaned_body = " ".join(body.split())
+            quote = cleaned_body[:40].strip() if len(cleaned_body) >= 10 else "Verified evidence"
+    
+        scores: List[CriterionScore] = []
+>       for c in self.rubric.criteria:
+                 ^^^^^^^^^^^
+E       AttributeError: 'OpenAICompatibleProvider' object has no attribute 'rubric'
+
+src/mamakscore/provider.py:165: AttributeError
+___________________ test_no_retry_or_body_leak_on_auth_error ___________________
+
+    def test_no_retry_or_body_leak_on_auth_error():
+        p = OpenAICompatibleProvider(
+            "https://example.test/v1",
+            "secret",
+            "model",
+            http_client=httpx.Client(
+                transport=httpx.MockTransport(lambda req: httpx.Response(401, text="sensitive body"))
+            ),
+            sleeper=lambda _: None,
+        )
+        with pytest.raises(ServiceError) as exc:
+>           p.assess(request())
+
+tests/test_provider.py:112: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+self = <mamakscore.provider.OpenAICompatibleProvider object at 0x114c21d10>
+request = ProviderRequest(system_prompt='system', user_prompt='<untrusted_submission>Evidence line long enough</untrusted_submis...', 'type': 'array'}}, 'required': ['criterion_scores'], 'title': 'AssessmentDraft', 'type': 'object'}, temperature=0.0)
+
+    def assess(self, request: ProviderRequest) -> ProviderResponse:
+        user_text = request.user_prompt or request.user_content or ""
+        body = user_text
+    
+        if "<untrusted_submission>" in user_text:
+            body = user_text.split("<untrusted_submission>")[1].split("</untrusted_submission>")[0].strip()
+        elif "=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===" in user_text:
+            body = user_text.split("=== BEGIN UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[1].split("=== END UNTRUSTED APPLICANT PITCH DECK CONTENT ===")[0].strip()
+    
+        quote = ""
+        for line in body.splitlines():
+            line_str = line.strip()
+            if line_str.startswith("[Page") or not line_str:
+                continue
+            if len(line_str) >= 20:
+                quote = line_str[:60].strip()
+                break
+    
+        if not quote:
+            # Fallback to any non-empty slice of text
+            cleaned_body = " ".join(body.split())
+            quote = cleaned_body[:40].strip() if len(cleaned_body) >= 10 else "Verified evidence"
+    
+        scores: List[CriterionScore] = []
+>       for c in self.rubric.criteria:
+                 ^^^^^^^^^^^
+E       AttributeError: 'OpenAICompatibleProvider' object has no attribute 'rubric'
+
+src/mamakscore/provider.py:165: AttributeError
+_____________ test_report_escapes_model_content_and_is_accessible ______________
+
+tmp_path = PosixPath('/private/var/folders/6k/6tws1y0d2016k4zmty1qshpc0000gn/T/pytest-of-mike/pytest-1/test_report_escapes_model_cont0')
+
+    def test_report_escapes_model_content_and_is_accessible(tmp_path):
+>       value = result(tmp_path).model_copy(
+                ^^^^^^^^^^^^^^^^
+            update={"missing_information": ["<script>alert(1)</script>"]}
+        )
+
+tests/test_report.py:28: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+tests/test_report.py:24: in result
+    ).evaluate("a", data, "deck.pdf")
+      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+src/mamakscore/pipeline.py:137: in evaluate
+    validated_draft = validate_assessment_draft(draft, self.rubric)
+                      ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+draft = AssessmentDraft(criterion_scores=[CriterionScore(criterion_id='problem', score=4, justification='Substantiated analysi...rsion rates for Traction?', 'What are the direct conversion rates for Competitive Advantage?'], missing_information=[])
+rubric = RubricDefinition(version='3.0', criteria=[RubricCriterion(id='problem', name='Problem / Pain Point', weight=10.0, desc... is being done about it.'})], digest='7940d99cc74e9fb2bc51794f883f4f654c0ec9cbeeb7a75ddb9413910b58ea21', scale=[0, 10])
+
+    def validate_assessment_draft(
+        draft: AssessmentDraft,
+        rubric: RubricDefinition,
+    ) -> AssessmentDraft:
+        """Validates an AssessmentDraft against the rubric constraints:
+        - Must contain exactly the 9 rubric criteria (no duplicates, no omissions)
+        - Empty evidence quote is only valid if score == 0 with an exact rationale
+        - Investor questions count must be between 5 and 10 with unique strings
+        - Improvement actions must target known rubric criteria and set target > current
+        - Red flags and actions must only reference known criteria
+        """
+        rubric_ids: Set[str] = {c.id for c in rubric.criteria}
+        score_map = {}
+    
+        # 1. Criteria count & uniqueness check
+        for item in draft.criterion_scores:
+            if item.criterion_id not in rubric_ids:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Unknown criterion_id '{item.criterion_id}' in assessment draft.",
+                    field="criterion_scores",
+                )
+            if item.criterion_id in score_map:
+                raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Duplicate criterion_id '{item.criterion_id}' found in assessment draft.",
+                    field="criterion_scores",
+                )
+            score_map[item.criterion_id] = item.score
+    
+        if set(score_map.keys()) != rubric_ids:
+            missing = rubric_ids - set(score_map.keys())
+            raise ServiceError(
+                ErrorCode.INVALID_MODEL_OUTPUT,
+                f"Assessment draft is missing required criteria: {missing}",
+                field="criterion_scores",
+            )
+    
+        # 2. Empty evidence quote rules
+        for item in draft.criterion_scores:
+            if not item.evidence_quote.strip() and item.score != 0:
+>               raise ServiceError(
+                    ErrorCode.INVALID_MODEL_OUTPUT,
+                    f"Criterion '{item.criterion_id}' has score {item.score} but empty evidence.",
+                    field="criterion_scores",
+                )
+E               mamakscore.errors.ServiceError: Criterion 'problem' has score 4 but empty evidence.
+
+src/mamakscore/intelligence.py:50: ServiceError
+____________________ test_startup_model_aliases_and_lineage ____________________
+
+    def test_startup_model_aliases_and_lineage():
+        data = book(
+            [
+                ("Paying Customers", 90, 100),
+                ("Average Revenue per Customer", 45, 50),
+                ("Gross Margin %", 55, 60),
+                ("Operating Expenses", 3900, 4000),
+                ("Cash Balance", 10000, 12000),
+                ("Customer Lifetime Months", 20, 24),
+                ("Customer Acquisition Cost", 320, 300),
+                ("EBITDA", 0, 100),
+            ],
+            "Forecast",
+        )
+>       result = parse_workbook(data, "finance.xlsx", WorkbookLimits())
+                 ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_workbook.py:37: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'PK\x03\x04\x14\x00\x00\x00\x08\x00Q\xa2H]F\xc7MH\x95\x00\x00\x00\xcd\x00\x00\x00\x10\x00\x00\x00docProps/app.xmlM\xc...x00\x80\x01J\x10\x00\x00[Content_Types].xmlPK\x05\x06\x00\x00\x00\x00\t\x00\t\x00>\x02\x00\x00\x96\x11\x00\x00\x00\x00'
+filename = 'finance.xlsx'
+limits = WorkbookLimits(max_workbook_bytes=10485760, max_sheets=10, max_rows=1000, max_columns=50, max_uncompressed_bytes=52428800)
+
+    def parse_workbook(
+        data: bytes,
+        filename: str,
+        limits: WorkbookLimits,
+    ) -> FinancialResult:
+        """Parses an Excel workbook with safety checks and derives standard metrics."""
+        if len(data) > limits.max_workbook_bytes:
+            raise ServiceError(
+                ErrorCode.FILE_TOO_LARGE,
+                "Financial model exceeds file size limit.",
+                field="financial_model",
+            )
+    
+        # 1. Zip bomb and path traversal security validation
+        _check_zip_bomb(data, limits)
+    
+        # 2. Parse workbook with openpyxl in read-only / data-only mode
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(data), data_only=True, read_only=True)
+        except Exception as exc:
+            raise ServiceError(
+                ErrorCode.UNREADABLE_WORKBOOK,
+                "Failed to parse Excel workbook contents.",
+                field="financial_model",
+            ) from exc
+    
+        try:
+            sheet_names = wb.sheetnames
+            if len(sheet_names) > limits.max_sheets:
+                raise ServiceError(
+                    ErrorCode.FILE_TOO_LARGE,
+                    "Workbook has too many sheets.",
+                    field="financial_model",
+                )
+    
+            extracted_raw_inputs: Dict[str, Any] = {}
+    
+            for name in sheet_names:
+                ws = wb[name]
+                for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
+                    if row_idx > limits.max_rows:
+                        break
+                    if not row or row[0].value is None:
+                        continue
+    
+                    label = str(row[0].value).strip()
+                    norm_label = _normalize_key(label)
+    
+                    # Look for the last non-empty numeric cell in the row
+                    for col_idx in range(len(row) - 1, 0, -1):
+                        cell = row[col_idx]
+                        val = cell.value
+                        if val is not None and isinstance(val, (int, float, Decimal)):
+>                           col_letter = _col_to_letter(col_idx + 1)
+                                         ^^^^^^^^^^^^^^
+E                           NameError: name '_col_to_letter' is not defined
+
+src/mamakscore/workbook.py:115: NameError
+___________________ test_three_model_families_are_classified ___________________
+
+    def test_three_model_families_are_classified():
+        startup = book(
+            [
+                ("Revenue Forecast", 1, 2),
+                ("Cost of Goods Sold", 1, 2),
+                ("EBITDA", 1, 2),
+                ("Funding Requirements", 1, 2),
+            ]
+        )
+        sme = book(
+            [
+                ("Monthly Revenue", 1, 2),
+                ("Monthly Expenses", 1, 2),
+                ("Profit and Loss", 1, 2),
+                ("Cash Balance", 1, 2),
+            ]
+        )
+        investor = book(
+            [
+                ("Revenue Assumptions", 1, 2),
+                ("Unit Economics", 1, 2),
+                ("Customer Acquisition", 1, 2),
+                ("Scenario Analysis", 1, 2),
+            ]
+        )
+>       assert parse_workbook(startup, "a.xlsx", WorkbookLimits()).model_family == "startup"
+               ^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+
+tests/test_workbook.py:71: 
+_ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ _ 
+
+data = b'PK\x03\x04\x14\x00\x00\x00\x08\x00Q\xa2H]F\xc7MH\x95\x00\x00\x00\xcd\x00\x00\x00\x10\x00\x00\x00docProps/app.xmlM\xc...00\x80\x01\xc1\x0f\x00\x00[Content_Types].xmlPK\x05\x06\x00\x00\x00\x00\t\x00\t\x00>\x02\x00\x00\r\x11\x00\x00\x00\x00'
+filename = 'a.xlsx'
+limits = WorkbookLimits(max_workbook_bytes=10485760, max_sheets=10, max_rows=1000, max_columns=50, max_uncompressed_bytes=52428800)
+
+    def parse_workbook(
+        data: bytes,
+        filename: str,
+        limits: WorkbookLimits,
+    ) -> FinancialResult:
+        """Parses an Excel workbook with safety checks and derives standard metrics."""
+        if len(data) > limits.max_workbook_bytes:
+            raise ServiceError(
+                ErrorCode.FILE_TOO_LARGE,
+                "Financial model exceeds file size limit.",
+                field="financial_model",
+            )
+    
+        # 1. Zip bomb and path traversal security validation
+        _check_zip_bomb(data, limits)
+    
+        # 2. Parse workbook with openpyxl in read-only / data-only mode
+        try:
+            wb = openpyxl.load_workbook(io.BytesIO(data), data_only=True, read_only=True)
+        except Exception as exc:
+            raise ServiceError(
+                ErrorCode.UNREADABLE_WORKBOOK,
+                "Failed to parse Excel workbook contents.",
+                field="financial_model",
+            ) from exc
+    
+        try:
+            sheet_names = wb.sheetnames
+            if len(sheet_names) > limits.max_sheets:
+                raise ServiceError(
+                    ErrorCode.FILE_TOO_LARGE,
+                    "Workbook has too many sheets.",
+                    field="financial_model",
+                )
+    
+            extracted_raw_inputs: Dict[str, Any] = {}
+    
+            for name in sheet_names:
+                ws = wb[name]
+                for row_idx, row in enumerate(ws.iter_rows(values_only=False), start=1):
+                    if row_idx > limits.max_rows:
+                        break
+                    if not row or row[0].value is None:
+                        continue
+    
+                    label = str(row[0].value).strip()
+                    norm_label = _normalize_key(label)
+    
+                    # Look for the last non-empty numeric cell in the row
+                    for col_idx in range(len(row) - 1, 0, -1):
+                        cell = row[col_idx]
+                        val = cell.value
+                        if val is not None and isinstance(val, (int, float, Decimal)):
+>                           col_letter = _col_to_letter(col_idx + 1)
+                                         ^^^^^^^^^^^^^^
+E                           NameError: name '_col_to_letter' is not defined
+
+src/mamakscore/workbook.py:115: NameError
+=============================== warnings summary ===============================
+<frozen importlib._bootstrap>:491
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type SwigPyPacked has no __module__ attribute
+
+<frozen importlib._bootstrap>:491
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type SwigPyObject has no __module__ attribute
+
+<frozen importlib._bootstrap>:491
+  <frozen importlib._bootstrap>:491: DeprecationWarning: builtin type swigvarlink has no __module__ attribute
+
+../../../../opt/homebrew/lib/python3.14/site-packages/fastapi/testclient.py:1
+  /opt/homebrew/lib/python3.14/site-packages/fastapi/testclient.py:1: StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+    from starlette.testclient import TestClient as TestClient  # noqa
+
+tests/test_api.py::test_health_ready_and_evaluate_contract
+  /opt/homebrew/lib/python3.14/site-packages/starlette/_exception_handler.py:59: StarletteDeprecationWarning: 'HTTP_422_UNPROCESSABLE_ENTITY' is deprecated. Use 'HTTP_422_UNPROCESSABLE_CONTENT' instead.
+    response = await handler(conn, exc)  # type: ignore[arg-type]
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ============================
+FAILED tests/test_api.py::test_health_ready_and_evaluate_contract - assert 42...
+FAILED tests/test_comparison.py::test_comparison_and_rubric_warning - Attribu...
+FAILED tests/test_finance.py::test_all_client_formulas - pydantic_core._pydan...
+FAILED tests/test_finance.py::test_percent_margin_and_missing_inputs - pydant...
+FAILED tests/test_finance.py::test_non_positive_burn_and_zero_denominator_are_unavailable
+FAILED tests/test_finance.py::test_invalid_margin_is_reported_not_guessed - p...
+FAILED tests/test_pipeline.py::test_deck_only_pipeline_is_complete_and_grounded
+FAILED tests/test_pipeline.py::test_cache_replays_without_second_provider_call
+FAILED tests/test_pipeline.py::test_ungrounded_provider_fails_whole_run - Ass...
+FAILED tests/test_provider.py::test_hosted_provider_parses_structured_response
+FAILED tests/test_provider.py::test_retry_once_on_429 - AttributeError: 'Open...
+FAILED tests/test_provider.py::test_no_retry_or_body_leak_on_auth_error - Att...
+FAILED tests/test_report.py::test_report_escapes_model_content_and_is_accessible
+FAILED tests/test_workbook.py::test_startup_model_aliases_and_lineage - NameE...
+FAILED tests/test_workbook.py::test_three_model_families_are_classified - Nam...
+================== 15 failed, 68 passed, 7 warnings in 0.88s ===================

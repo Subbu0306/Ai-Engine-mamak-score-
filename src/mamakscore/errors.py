@@ -2,7 +2,11 @@
 
 from enum import Enum
 from typing import Any, Dict, Optional
+"""Domain errors for the MamakScore assessment engine."""
 
+from mamakscore.contracts import ServiceError
+
+__all__ = ["ServiceError"]
 
 class ErrorCode(str, Enum):
     # Request & file payload errors

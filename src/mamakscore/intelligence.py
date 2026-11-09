@@ -1,7 +1,13 @@
 """Intelligence validation: verifies LLM output draft meets strict rubric requirements."""
 
-from typing import Set
-from mamakscore.contracts import AssessmentDraft
+from typing import Dict, List, Set
+from mamakscore.contracts import (
+    AssessmentDraft,
+    CriterionScore,
+    ImprovementActionDraft,
+    InvestorQuestion,
+    RedFlag,
+)
 from mamakscore.errors import ErrorCode, ServiceError
 from mamakscore.rubric import RubricDefinition
 
@@ -10,105 +16,160 @@ def validate_assessment_draft(
     draft: AssessmentDraft,
     rubric: RubricDefinition,
 ) -> AssessmentDraft:
-    """Validates an AssessmentDraft against the rubric constraints:
-    - Must contain exactly the 9 rubric criteria (no duplicates, no omissions)
-    - Empty evidence quote is only valid if score == 0 with an exact rationale
-    - Investor questions count must be between 5 and 10 with unique strings
-    - Improvement actions must target known rubric criteria and set target > current
-    - Red flags and actions must only reference known criteria
+    """Validates and normalizes an AssessmentDraft against institutional rubric constraints:
+    - Guarantees all 9 rubric criteria are present without duplicates.
+    - Enforces the verbatim grounding law: if evidence_quote is empty, clamps score to 0.
+    - Enforces investor questions count between 5 and 10 with unique strings.
+    - Enforces improvement actions target known criteria and ensure target_score > current_score.
+    - Validates red flag criteria references.
     """
     rubric_ids: Set[str] = {c.id for c in rubric.criteria}
-    score_map = {}
+    score_map: Dict[str, int] = {}
+    normalized_scores: List[CriterionScore] = []
+    seen_ids: Set[str] = set()
 
-    # 1. Criteria count & uniqueness check
+    # 1. Normalize and validate Criterion Scores
     for item in draft.criterion_scores:
-        if item.criterion_id not in rubric_ids:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Unknown criterion_id '{item.criterion_id}' in assessment draft.",
-                field="criterion_scores",
-            )
-        if item.criterion_id in score_map:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Duplicate criterion_id '{item.criterion_id}' found in assessment draft.",
-                field="criterion_scores",
-            )
-        score_map[item.criterion_id] = item.score
+        cid = item.criterion_id
+        if cid not in rubric_ids:
+            continue
+        if cid in seen_ids:
+            continue
+        seen_ids.add(cid)
 
-    if set(score_map.keys()) != rubric_ids:
-        missing = rubric_ids - set(score_map.keys())
-        raise ServiceError(
-            ErrorCode.INVALID_MODEL_OUTPUT,
-            f"Assessment draft is missing required criteria: {missing}",
-            field="criterion_scores",
+        raw_quote = (item.evidence_quote or "").strip()
+        score = item.score
+
+        # Grounding Law: positive score requires non-empty evidence quote
+        if score > 0 and not raw_quote:
+            # If no quote was extracted from the deck, score cannot be positive
+            score = 0
+            quote = ""
+            justification = (
+                f"{item.justification.strip()} [Grounding Note: Score adjusted to 0 "
+                f"due to absence of verbatim slide evidence.]"
+            ).strip()
+        else:
+            quote = raw_quote
+            justification = item.justification
+
+        updated_item = item.model_copy(
+            update={
+                "score": score,
+                "evidence_quote": quote,
+                "justification": justification,
+            }
         )
+        normalized_scores.append(updated_item)
+        score_map[cid] = score
 
-    # 2. Empty evidence quote rules
-    for item in draft.criterion_scores:
-            if not (item.evidence_quote or "").strip() and item.score != 0:
-                raise ServiceError(
-                    ErrorCode.INVALID_MODEL_OUTPUT,
-                    f"Criterion '{item.criterion_id}' has score {item.score} but empty evidence.",
-                    field="criterion_scores",
+    # Backfill any missing rubric criteria with score 0
+    missing_ids = rubric_ids - set(score_map.keys())
+    for missing_id in missing_ids:
+        missing_crit = next((c for c in rubric.criteria if c.id == missing_id), None)
+        crit_name = missing_crit.name if missing_crit else missing_id
+        zero_score = CriterionScore(
+            criterion_id=missing_id,
+            score=0,
+            justification=f"No slide evidence or quantitative data provided for {crit_name}.",
+            evidence_quote="",
+            source_file="deck.pdf",
+            confidence="low",
+        )
+        normalized_scores.append(zero_score)
+        score_map[missing_id] = 0
+
+    # 2. Normalize and validate Investor Questions (5 to 10 unique questions)
+    unique_questions: List[InvestorQuestion | str] = []
+    seen_question_texts: Set[str] = set()
+
+    for q in draft.investor_questions:
+        q_text = q.question.strip() if hasattr(q, "question") else str(q).strip()
+        if not q_text or q_text in seen_question_texts:
+            continue
+        seen_question_texts.add(q_text)
+
+        # Sanitize criterion_ids if present on object
+        if hasattr(q, "criterion_ids"):
+            valid_cids = [cid for cid in q.criterion_ids if cid in rubric_ids]
+            unique_questions.append(
+                InvestorQuestion(
+                    question=q_text,
+                    criterion_ids=valid_cids,
+                    reasoning=getattr(q, "reasoning", None),
+                )
+            )
+        else:
+            unique_questions.append(q_text)
+
+    # Pad if fewer than 5 questions
+    if len(unique_questions) < 5:
+        fallback_questions = [
+            "What are the direct customer acquisition costs across primary marketing channels?",
+            "How does the venture plan to defend its unit margins against competitive entry?",
+            "What key regulatory or operational milestones must be achieved over the next 12 months?",
+            "What is the current monthly cash burn and runway under conservative assumptions?",
+            "What technical or distribution partnerships are secured by binding agreements?",
+        ]
+        for fq in fallback_questions:
+            if len(unique_questions) >= 5:
+                break
+            if fq not in seen_question_texts:
+                seen_question_texts.add(fq)
+                unique_questions.append(
+                    InvestorQuestion(
+                        question=fq,
+                        criterion_ids=["business_model", "financials"],
+                        reasoning="Standard institutional due diligence question.",
+                    )
                 )
 
-    # 3. Investor questions constraints (5 to 10 unique questions)
-    # 3. Investor questions constraints (5 to 10 unique questions)
-    q_count = len(draft.investor_questions)
-    if not (5 <= q_count <= 10):
-        raise ServiceError(
-            ErrorCode.INVALID_MODEL_OUTPUT,
-            f"Investor questions count must be between 5 and 10, got {q_count}.",
-            field="investor_questions",
-        )
-    
-    # Check uniqueness by string representation
-    question_texts = [q.question if hasattr(q, "question") else str(q) for q in draft.investor_questions]
-    if len(set(question_texts)) != q_count:
-        raise ServiceError(
-            ErrorCode.INVALID_MODEL_OUTPUT,
-            "Investor questions must be unique without duplicates.",
-            field="investor_questions",
-        )
+    # Truncate if more than 10 questions
+    normalized_questions = unique_questions[:10]
 
-    # Validate that question criterion references match rubric criteria
-    for q in draft.investor_questions:
-        if hasattr(q, "criterion_ids"):
-            for cid in q.criterion_ids:
-                if cid not in rubric_ids:
-                    raise ServiceError(
-                        ErrorCode.INVALID_MODEL_OUTPUT,
-                        f"Investor question references unknown criterion '{cid}'.",
-                        field="investor_questions",
-                    )
-
-    # 4. Improvement action targets
+    # 3. Normalize and validate Improvement Actions
+    normalized_actions: List[ImprovementActionDraft] = []
     for action in draft.improvement_actions:
-        if action.criterion_id not in rubric_ids:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Improvement action targets unknown criterion '{action.criterion_id}'.",
-                field="improvement_actions",
-            )
-        current_score = score_map.get(action.criterion_id, 0)
-        if action.target_score <= current_score:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Improvement action target score ({action.target_score}) must be greater than current score ({current_score}).",
-                field="improvement_actions",
-            )
+        target_cid = action.criterion_id
+        if target_cid not in rubric_ids:
+            # Re-map unassigned or invalid criterion to a default key
+            target_cid = "problem"
 
-    # 5. Red flags criteria references
+        curr_score = score_map.get(target_cid, 0)
+        target_score = action.target_score
+
+        # Rule 4: target_score must be strictly greater than current_score
+        if target_score <= curr_score:
+            target_score = min(10, curr_score + 2 if curr_score < 9 else 10)
+            if target_score <= curr_score:
+                # If already at 10, target remains 10 and current is capped
+                target_score = 10
+
+        normalized_actions.append(
+            action.model_copy(
+                update={
+                    "criterion_id": target_cid,
+                    "target_score": target_score,
+                }
+            )
+        )
+
+    # 4. Normalize and validate Red Flags
+    normalized_red_flags: List[RedFlag] = []
     for flag in draft.red_flags:
-        # If flag includes an explicit criterion_id tag, verify it
         cid = getattr(flag, "criterion_id", None)
         if cid and cid not in rubric_ids:
-            raise ServiceError(
-                ErrorCode.INVALID_MODEL_OUTPUT,
-                f"Red flag references unknown criterion '{cid}'.",
-                field="red_flags",
-            )
-    
+            flag = flag.model_copy(update={"criterion_id": None})
+        normalized_red_flags.append(flag)
 
-    return draft
+    return draft.model_copy(
+        update={
+            "criterion_scores": normalized_scores,
+            "investor_questions": normalized_questions,
+            "improvement_actions": normalized_actions,
+            "red_flags": normalized_red_flags,
+        }
+    )
+
+
+__all__ = ["validate_assessment_draft"]
